@@ -12,7 +12,7 @@ const Navbar = () => {
       
       {/* Navigation links */}
       <div className="navbar-links">
-        <Link to="/">Profile</Link>
+        <Link to="/">Home</Link>
         <Link to="/seller">Seller View</Link>
         <Link to="/cart">Cart</Link>
       </div>
