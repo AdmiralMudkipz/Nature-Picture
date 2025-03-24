@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 // This is our navigation menu component
-function Navbar() {
+const Navbar = () => {
   return (
     <nav className="navbar">
       {/* Brand/Logo section */}
@@ -12,12 +12,12 @@ function Navbar() {
       
       {/* Navigation links */}
       <div className="navbar-links">
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+        <Link to="/">Profile</Link>
+        <Link to="/seller">Seller View</Link>
+        <Link to="/cart">Cart</Link>
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar; 

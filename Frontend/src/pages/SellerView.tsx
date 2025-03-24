@@ -9,5 +9,5 @@ const SellerView = () => {
   );
 };
 
-// This line makes our About component available to other files
+// This line makes our component available to other files
 export default SellerView; 
