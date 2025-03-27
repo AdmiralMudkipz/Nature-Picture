@@ -1,9 +1,9 @@
-import SellerInfo from "./SellerProfile/SellerInfo";
-import Header from "./Header/Header";
-import ListingHeader from "./ListingHeader/ListingHeader";
-import ProductCard from "../ProductCard/ProductCard"; 
-import "./SellerProfile.css";
-import leafImage from "./leaf.jpg";  
+import SellerInfo from "../components/SellerProfileInfo/SellerInfo/SellerInfo";
+import Header from "../components/SellerProfileInfo/Header/Header";
+import ListingHeader from "../components/SellerProfileInfo/ListingHeader/ListingHeader";
+import ProductCard from "../components/ProductCard/ProductCard"; 
+import "../components/SellerProfileInfo/SellerProfile/SellerProfile.css";
+import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
 
 // Sample product data (Replace with API data later)
 const products = [

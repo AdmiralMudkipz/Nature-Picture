@@ -3,13 +3,14 @@ import { useState } from 'react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import SellerView from './pages/SellerView';
+import SellerProfile from "./pages/SellerProfile"; // Import your SellerProfile
 import Cart from './pages/Cart';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   // This would typically come from your authentication system
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false ); 
 
   return (
     <Router>
@@ -40,6 +41,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Add dynamic Seller Profile route */}
+            <Route
+              path="/seller/:sellerId"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <SellerProfile />
+                </ProtectedRoute>
+              }
+            />
+            {/* seller profile route - need to get db connection working */}
+            <Route path="/seller-profile" element={<SellerProfile />} /> 
           </Routes>
         </div>
       </div>
