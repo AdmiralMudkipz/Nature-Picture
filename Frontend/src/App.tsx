@@ -10,7 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   // This would typically come from your authentication system
-  const [isAuthenticated, setIsAuthenticated] = useState(false ); 
+  const [isAuthenticated] = useState(false ); 
 
   return (
     <Router>
