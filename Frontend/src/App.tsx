@@ -18,7 +18,7 @@ function App() {
         <div className="page-content">
           <Routes>
             {/* Public route */}
-            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             
             {/* Login route */}
             <Route path="/login" element={<Login />} />
