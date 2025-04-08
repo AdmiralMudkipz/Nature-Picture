@@ -1,15 +1,22 @@
 .listing-header {
     display: flex;
-    justify-content: space-between; /* Ensures title is on left, button on right */
+    justify-content: space-between;
     align-items: center;
-    width: 100%; /* Forces full width */
-    padding: 10px 20px; /* Adds space inside */
-    box-sizing: border-box; /* Ensures padding doesn’t affect width */
-}
-
-.listing-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0; /* Removes unwanted default margins */
-    text-align: left; /* Explicitly aligns text */
-}
+    gap: 70rem;  /* Adjusts spacing between h1 & sort by button */
+  }
+  
+  
+  .listing-title {
+    margin-right: 1rem;
+  }
+    .listing-title h1 {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2F4F4F; /* Forest green */
+    }  
+  
+  .listing-sort {
+    display: flex;
+    align-items: center;
+  }
+  

@@ -110,6 +110,8 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
                 <option value="print">Print</option>
                 <option value="sculpture">Sculpture</option>
                 <option value="painting">Painting</option>
+                <option value="ceramics">Ceramics</option>
+                <option value="digital">Other</option>
               </select>
 
               <label>Upload Image:</label>

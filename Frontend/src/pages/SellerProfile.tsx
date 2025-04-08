@@ -1,18 +1,49 @@
+import React, { useState, useEffect } from "react";
 import SellerInfo from "../components/SellerProfileInfo/SellerInfo/SellerInfo";
 import Header from "../components/SellerProfileInfo/Header/Header";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader/ListingHeader";
-import ProductCard from "../components/ProductCard/ProductCard"; 
+import ProductCard from "../components/ProductCard/ProductCard";
 import "../components/SellerProfileInfo/SellerProfile/SellerProfile.css";
 import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  date: string; // Added for sorting "newest"
+}
+
 // Sample product data (Replace with API data later)
-const products = [
-  { id: 1, name: "Leaf Painting", image: leafImage, price: 10.00 },
-  { id: 2, name: "Handmade Vase", image: leafImage, price: 25.00 },
-  { id: 3, name: "Wood Carving", image: leafImage, price: 40.00 },
+const sellerProducts: Product[] = [
+  { id: 1, name: "Leaf Painting", image: leafImage, price: 10.0, date: "2025-04-01" },
+  { id: 2, name: "Handmade Vase", image: leafImage, price: 25.0, date: "2025-04-03" },
+  { id: 3, name: "Wood Carving", image: leafImage, price: 40.0, date: "2025-04-02" },
 ];
 
-const SellerProfile = () => {
+const SellerPage: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>(sellerProducts);
+  const [sortMethod, setSortMethod] = useState<string>("newest");
+
+  useEffect(() => {
+    const sorted = [...products].sort((a, b) => {
+      switch (sortMethod) {
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        case "name-asc":
+          return a.name.localeCompare(b.name);
+        case "name-desc":
+          return b.name.localeCompare(a.name);
+        case "newest":
+        default:
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
+    setProducts(sorted);
+  }, [sortMethod]);
+
   return (
     <div className="seller-profile">
       <div className="header-container">
@@ -22,8 +53,13 @@ const SellerProfile = () => {
       <div className="seller-content">
         <SellerInfo />
       </div>
+
       <div className="listing-header-container">
-        <ListingHeader />
+        <ListingHeader
+          onSortChange={setSortMethod}
+          currentSort={sortMethod}
+          showSort={true}
+        />
       </div>
 
       <div className="product-card-wrapper">
@@ -35,5 +71,4 @@ const SellerProfile = () => {
   );
 };
 
-
-export default SellerProfile;
+export default SellerPage;
