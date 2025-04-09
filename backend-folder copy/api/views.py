@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from base.models import Users  # make sure this matches your model location
+from base.models import Users  
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -12,9 +12,9 @@ class LoginAPIView(APIView):
         password = request.data.get('password')
 
         try:
-            user = Users.objects.get(username=username)
-            if password == user.password:
-                request.session['user_id'] = user.user_id  # Set session variable
+            user = Users.objects.get(username=username) # tries to find user object in database 
+            if password == user.password: # if user is found 
+                request.session['user_id'] = user.user_id  # then set session variable
                 return Response({
                     'message': 'Login successful',
                     'user_id': user.user_id,
