@@ -3,7 +3,7 @@ import Header from "./Header/Header";
 import ListingHeader from "./ListingHeader/ListingHeader";
 import ProductCard from "../ProductCard/ProductCard"; 
 import "./SellerProfile.css";
-import leafImage from "./leaf.jpg";  
+import leafImage from "./leaf.jpg";
 
 // Sample product data (Replace with API data later)
 const products = [
