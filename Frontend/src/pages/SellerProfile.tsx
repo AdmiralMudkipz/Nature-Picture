@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SellerInfo from "../components/SellerProfileInfo/SellerInfo";
-import Header from "../components/SellerProfileInfo/Header";
-import ListingHeader from "../components/SellerProfileInfo/ListingHeader/ListingHeader";
+import ListingHeader from "../components/SellerProfileInfo/ListingHeader";
 import ProductCard from "../components/ProductCard";
-import "../components/SellerProfileInfo/SellerProfile.css";
 import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
+import Navbar from "../components/Navbar";
 
 interface Product {
   id: number;
@@ -64,8 +63,8 @@ const SellerPage: React.FC = () => {
 
   return (
     <div className="seller-profile">
-      <div className="header-container">
-        <Header />
+      <div className="navbar">
+        <Navbar />
       </div>
 
       <div className="seller-content">

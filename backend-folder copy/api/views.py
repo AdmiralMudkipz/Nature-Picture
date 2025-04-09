@@ -3,6 +3,27 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from base.models import Users  
+from .serializers import SignupSerializer  # Import the serializer
+
+# Handles user signup functionality.
+class SignupAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()  # User is created here
+            return Response({
+                'message': 'User created successfully',
+                'user': {
+                    'username': user.username,
+                    'email': user.email
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 # Handles the login functionality. It is an API endpoint that 
 # allows the frontend to send login data (username and password), checks the credentials 
