@@ -89,6 +89,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number | null>(null);
   const [typeOfArt, setTypeOfArt] = useState("");
+  const[county, setCounty] = useState("");
   const [stock, setStock] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -98,6 +99,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
       description,
       price,
       typeOfArt,
+      county,
       stock,
     };
 
@@ -109,6 +111,8 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
     setPrice(null);
     setTypeOfArt("");
     setStock(null);
+    setCounty("");
+    // Close modal
     handleClose();
   };
 
@@ -180,6 +184,39 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
               <option value="ceramics">Ceramics</option>
               <option value="digital">Other</option>
             </Select>
+            
+            <Label>NJ County</Label>
+            <Select
+              value={county}
+              onChange={(e) => setCounty(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select Type of Art
+              </option>
+              <option value="atlantic">Atlantic</option>
+              <option value="bergen">Bergen</option>
+              <option value="burlington">Burlington</option>
+              <option value="camden">Camden</option>
+              <option value="cape-may">Cape May</option>
+              <option value="cumberland">Cumberland</option>
+              <option value="essex">Essex</option>
+              <option value="gloucester">Gloucester</option>
+              <option value="hudson">Hudson</option>
+              <option value="hunterdon">Hunterdon</option> 
+              <option value="mercer">Mercer</option>  
+              <option value="middlesex">Middlesex</option>
+              <option value="monmouth">Monmouth</option>
+              <option value="morris">Morris</option>
+              <option value="ocean">Ocean</option>
+              <option value="passaic">Passaic</option>
+              <option value="salem">Salem</option>
+              <option value="somerset">Somerset</option>
+              <option value="sussex">Sussex</option>
+              <option value="union">Union</option>
+              <option value="warren">Warren</option>
+            </Select>
+
 
             <Label>Upload Image:</Label>
             {/* You can add <input type="file" /> here later if needed */}

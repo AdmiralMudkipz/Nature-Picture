@@ -4,6 +4,10 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from base.models import Users  
 
+# Handles the login functionality. It is an API endpoint that 
+# allows the frontend to send login data (username and password), checks the credentials 
+# against the database, and returns a response based on whether the login is successful or not.
+
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -16,7 +20,7 @@ class LoginAPIView(APIView):
             if password == user.password: # if user is found 
                 request.session['user_id'] = user.user_id  # then set session variable
                 return Response({
-                    'message': 'Login successful',
+                    'message': 'Login successful', 
                     'user_id': user.user_id,
                     'username': user.username,
                     'email': user.email,
