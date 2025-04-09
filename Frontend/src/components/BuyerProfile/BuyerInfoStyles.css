@@ -1,0 +1,43 @@
+.buyer-info {
+  text-align: center;
+  width: 100%;
+}
+
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 2px solid black;
+}
+
+.buyer-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.reviews-count {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.buyer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; /* Adds spacing between ListingHeader and SellerInfo */
+  margin-top: 20px;
+  width: 100%;
+}

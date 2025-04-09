@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #242424 !important; /* this is setting the entire background for all pages **/ 
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -23,10 +23,11 @@ a:hover {
 }
 
 body {
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: #000000; 
+  /* background-color: #000000 */
 }
 
 h1 {
@@ -75,7 +76,7 @@ button:focus-visible {
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #1a1a1a; /* Light black background */
+  /* background-color: #1a1a1a; Light black background */
   color: #e0e0e0; /* Light gray text */
   line-height: 1.6;
 }
@@ -145,7 +146,7 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 20px;
-  background-color: #1a1a1a;
+  /* background-color: #1a1a1a;  */ /* changes the body in log in container */
 }
 
 .login-box {
