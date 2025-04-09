@@ -7,13 +7,13 @@ const Navbar = () => {
     <nav className="navbar">
       {/* Brand/Logo section */}
       <div className="navbar-brand">
-        <Link to="/">Nature Picture</Link>
+        <Link to="/Home">Nature Picture</Link>
       </div>
       
       {/* Navigation links */}
       <div className="navbar-links">
-        <Link to="/">Home</Link>
-        <Link to="/seller">Seller View</Link>
+        <Link to="/"> Log In </Link>
+        <Link to="/SellerView">Seller View</Link>
         <Link to="/cart">Cart</Link>
       </div>
     </nav>

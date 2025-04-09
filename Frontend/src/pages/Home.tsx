@@ -1,12 +1,27 @@
-// This is a React component for our Home page
-function Home() {
+import React from 'react';
+import SearchBar from '../components/SearchBar';
+import Sidebar from '../components/sidebar';
+
+const Home: React.FC = () => {
+
+  const handleSearch = (query: string) => {
+    console.log('Searching for:', query);
+    alert(`You searched for: ${query}`);
+  };
+const handleCategoryChange = (categories: string[]) => {
+    console.log('Selected Categories:', categories);
+  };
+
+  const handleCountyChange = (county: string) => {
+    console.log('Selected County:', county);
+  };
   return (
-    <div className="page">
-      <h1>Welcome to Our Website</h1>
-      <p>This is the home page. Feel free to look around!</p>
+    <div>
+      <h1 style={{ textAlign: 'center' }}>Explore Local Art</h1>
+      <SearchBar onSearch={handleSearch} />
+      <Sidebar onCategoryChange={handleCategoryChange} onCountyChange={handleCountyChange} />
     </div>
   );
-}
+};
 
-// This line makes our Home component available to other files
-export default Home; 
+export default Home;
