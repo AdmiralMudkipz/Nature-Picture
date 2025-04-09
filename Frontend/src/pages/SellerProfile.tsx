@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import SellerInfo from "../components/SellerProfileInfo/SellerInfo/SellerInfo";
-import Header from "../components/SellerProfileInfo/Header/Header";
+import SellerInfo from "../components/SellerProfileInfo/SellerInfo";
+import Header from "../components/SellerProfileInfo/Header";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader/ListingHeader";
-import ProductCard from "../components/ProductCard/ProductCard";
-import "../components/SellerProfileInfo/SellerProfile/SellerProfile.css";
+import ProductCard from "../components/ProductCard";
+import "../components/SellerProfileInfo/SellerProfile.css";
 import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
 
 interface Product {
@@ -16,9 +16,27 @@ interface Product {
 
 // Sample product data (Replace with API data later)
 const sellerProducts: Product[] = [
-  { id: 1, name: "Leaf Painting", image: leafImage, price: 10.0, date: "2025-04-01" },
-  { id: 2, name: "Handmade Vase", image: leafImage, price: 25.0, date: "2025-04-03" },
-  { id: 3, name: "Wood Carving", image: leafImage, price: 40.0, date: "2025-04-02" },
+  {
+    id: 1,
+    name: "Leaf Painting",
+    image: leafImage,
+    price: 10.0,
+    date: "2025-04-01",
+  },
+  {
+    id: 2,
+    name: "Handmade Vase",
+    image: leafImage,
+    price: 25.0,
+    date: "2025-04-03",
+  },
+  {
+    id: 3,
+    name: "Wood Carving",
+    image: leafImage,
+    price: 40.0,
+    date: "2025-04-02",
+  },
 ];
 
 const SellerPage: React.FC = () => {
