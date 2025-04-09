@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCategoryChange, onCountyChange }) =
 };
 
 const styles = {
-  arrowButton: {
+ arrowButton: {
     position: 'absolute' as const,
     top: '80px', // Aligned with the "Explore Local Art" header
     zIndex: 1000,
@@ -108,7 +108,7 @@ const styles = {
     border: 'none',
     color: '#fff',
     transition: 'left 0.3s ease, color 0.3s ease', // Smooth transitions
-  },
+ }, 
   sidebar: {
     position: 'fixed' as const,
     top: 0,
