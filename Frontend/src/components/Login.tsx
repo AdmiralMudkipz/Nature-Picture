@@ -6,6 +6,9 @@ import axios from "axios";
 interface LoginResponse {
   username: string;
   user_id: number;
+  first_name: string; // Add first_name in the response type
+  last_name: string;  // Add last_name in the response type
+  email: string;      // Add email in the response type
 }
 
 const Login = () => {
@@ -17,21 +20,26 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     try {
-      // Specify the expected response type and include credentials in the request
       const response = await axios.post<LoginResponse>(
         "http://localhost:8000/api/login/",
         { username, password },
         { withCredentials: true }  // Ensure session cookie is sent with the request
       );
-
+  
       // Destructure the response data
-      const { username: userName, user_id } = response.data;
-
+      const { username: userName, user_id, first_name, last_name, email } = response.data;
+  
       // Update the user context
-      setUser({ username: userName, user_id });
-
+      setUser({
+        username: userName,
+        user_id,
+        first_name,
+        last_name,
+        email,
+      });
+  
       // Redirect after successful login
       navigate("/home");
       console.log("Login successful:", response.data);

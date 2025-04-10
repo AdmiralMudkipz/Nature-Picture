@@ -17,8 +17,12 @@ const BuyerView = () => {
         <Navbar />
       </div>
       <div className="buyer-content">
-        <BuyerInfo />
+        <BuyerInfo/>
       </div>
+      <div className="listing-header">
+        <h1 style={{ fontSize: "1.5rem" }}>Past Purchases</h1>
+        <div style={{ marginBottom: "1rem" }}></div>
+        </div>
       <div className="product-card-wrapper">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />

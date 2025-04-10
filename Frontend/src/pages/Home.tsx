@@ -1,6 +1,6 @@
 import React from 'react';
 import SearchBar from '../components/SearchBar';
-import Sidebar from '../components/sidebar';
+import Sidebar from '../components/Sidebar';
 
 const Home: React.FC = () => {
 

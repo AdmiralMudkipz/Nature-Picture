@@ -1,9 +1,19 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 
+// Define a User type
+interface User {
+  username: string;
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+// Add other properties as necessary (e.g., email, etc.)
+}
+
 // Define the shape of the context value
 interface UserContextType {
-  user: { username: string; user_id: number } | null;
-  setUser: React.Dispatch<React.SetStateAction<{ username: string; user_id: number } | null>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 // Create the context with default values
@@ -11,7 +21,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Provider component
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<{ username: string; user_id: number } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -28,4 +38,3 @@ export const useUser = () => {
   }
   return context;
 };
-
