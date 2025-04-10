@@ -1,6 +1,10 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // This is a React component for our About page
+=======
+// Twe dont need a product view ig im doing this 4 my own convenience
+>>>>>>> Stashed changes
 =======
 // Twe dont need a product view ig im doing this 4 my own convenience
 >>>>>>> Stashed changes
@@ -16,6 +20,10 @@ type Product = {
   description: string;
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  location: string;
+>>>>>>> Stashed changes
 =======
   location: string;
 >>>>>>> Stashed changes
