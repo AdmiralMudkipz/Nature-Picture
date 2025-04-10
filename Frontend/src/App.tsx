@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { UserProvider } from '../src/context/UserContext';  // Import UserProvider
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import SellerView from './pages/SellerView';
 import SellerProfile from './pages/SellerProfile'; // Import your SellerProfile
 import Cart from './pages/Cart';
 import Login from './components/Login';
@@ -30,14 +29,14 @@ function App() {
               <Route path="/login" element={<Login />} />
 
               {/* Protected routes */}
-              <Route
+              {/* <Route
                 path="/seller"
                 element={
                   <ProtectedRoute isAuthenticated={isAuthenticated}>
-                    <SellerView />
+                    
                   </ProtectedRoute>
                 }
-              />
+              /> */}
               <Route
                 path="/cart"
                 element={
