@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "axios": "^1.8.4",
+    "styled-components": "^6.1.17"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/styled-components": "^5.1.34"
+  }
+}
