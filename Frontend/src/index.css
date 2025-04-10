@@ -108,7 +108,9 @@ body {
 
 .navbar-links {
   display: flex;
+  align-items: center;
   gap: 1rem;
+  font-size: 15px;
 }
 
 .navbar-links a {

@@ -7,8 +7,10 @@ import SellerView from './pages/SellerView';
 import SellerProfile from './pages/SellerProfile'; // Import your SellerProfile
 import Cart from './pages/Cart';
 import Login from './components/Login';
+import SignUp from './pages/Sign-Up'; // Import your SignUp component
 import ProtectedRoute from './components/ProtectedRoute';
 import BuyerView from './pages/BuyerView';
+
 
 function App() {
   // This would typically come from your authentication system
@@ -57,6 +59,7 @@ function App() {
               <Route path="/seller-profile" element={<SellerProfile />} />
               {/* Buyer profile route */}
               <Route path="/buyer-profile" element={<BuyerView />} />
+              <Route path='/sign-up' element={<SignUp />} />
             </Routes>
           </div>
         </div>

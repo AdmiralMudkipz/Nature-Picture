@@ -39,7 +39,11 @@ class LoginAPIView(APIView):
         try:
             user = Users.objects.get(username=username) # tries to find user object in database 
             if password == user.password: # if user is found 
-                request.session['user_id'] = user.user_id  # then set session variable
+                # create a session for the user by storing their user_id in Django's session framework — 
+                # this is exactly how session-based auth works. Django will automatically send a session 
+                # cookie back to the frontend (called sessionid) which will identify the user in future requests
+                request.session['user_id'] = user.user_id 
+
                 return Response({
                     'message': 'Login successful', 
                     'user_id': user.user_id,

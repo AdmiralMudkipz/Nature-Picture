@@ -10,7 +10,7 @@ interface LoginResponse {
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState(""); // Change 'email' to 'username'
+  const [username, setUsername] = useState(""); 
   const [password, setPassword] = useState("");
   const { setUser } = useUser(); // Destructure setUser from context to update the user state
   const navigate = useNavigate();
@@ -19,10 +19,11 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // Specify the expected response type
+      // Specify the expected response type and include credentials in the request
       const response = await axios.post<LoginResponse>(
         "http://localhost:8000/api/login/",
-        { username, password }
+        { username, password },
+        { withCredentials: true }  // Ensure session cookie is sent with the request
       );
 
       // Destructure the response data
