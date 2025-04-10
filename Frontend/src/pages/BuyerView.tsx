@@ -20,7 +20,7 @@ const BuyerView = () => {
         <BuyerInfo/>
       </div>
       <div className="listing-header">
-        <h1 style={{ fontSize: "1.5rem" }}>Product Listings</h1>
+        <h1 style={{ fontSize: "1.5rem" }}>Past Purchases</h1>
         <div style={{ marginBottom: "1rem" }}></div>
         </div>
       <div className="product-card-wrapper">

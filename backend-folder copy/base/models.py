@@ -10,6 +10,7 @@ class ArtPiece(models.Model):
     image = models.CharField(max_length=255, blank=True, null=True)
     stock_amount = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    # location = models.ForeignKey('Location', models.DO_NOTHING)
     user = models.ForeignKey('Users', models.DO_NOTHING)
 
     class Meta:

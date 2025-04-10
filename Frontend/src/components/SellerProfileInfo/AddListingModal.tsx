@@ -185,14 +185,14 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
               <option value="digital">Other</option>
             </Select>
             
-            <Label>NJ County</Label>
+            <Label>Location</Label>
             <Select
               value={county}
               onChange={(e) => setCounty(e.target.value)}
               required
             >
               <option value="" disabled>
-                Select Type of Art
+                Select Location
               </option>
               <option value="atlantic">Atlantic</option>
               <option value="bergen">Bergen</option>
