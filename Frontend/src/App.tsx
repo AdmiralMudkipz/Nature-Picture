@@ -10,7 +10,7 @@ import Login from './components/Login';
 import SignUp from './pages/Sign-Up'; // Import your SignUp component
 import ProtectedRoute from './components/ProtectedRoute';
 import BuyerView from './pages/BuyerView';
-
+import WidgetTest from './pages/WidgetTest';
 
 function App() {
   // This would typically come from your authentication system
@@ -60,6 +60,8 @@ function App() {
               {/* Buyer profile route */}
               <Route path="/buyer-profile" element={<BuyerView />} />
               <Route path='/sign-up' element={<SignUp />} />
+              <Route path="/widget-test" element={<WidgetTest />} />
+              {/* widget test route for jenna */}
             </Routes>
           </div>
         </div>

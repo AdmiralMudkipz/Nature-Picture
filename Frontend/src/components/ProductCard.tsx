@@ -1,10 +1,17 @@
+import React, {useState} from "react";
 import styled from "styled-components";
+import ListingWidget from "./ListingWidget";
 
 type Product = {
   id: number;
   name: string;
   image: string;
+  description: string;
   price: number;
+  stock: number;
+  typeOfArt: string;
+  location: string;
+  date: string;
 };
 
 type ProductCardProps = {
@@ -49,13 +56,28 @@ const Price = styled.span`
 `;
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  //going to add an onclick onto this!
+    const [isWidgetOpen, setIsWidgetOpen] = useState(false); // State for modal visibility
+  
+    const handleOpenWidget = () => {
+      setIsWidgetOpen(true); // Open modal when "Add Listing" button is clicked
+    };
+  
+    const handleCloseWidget = () => {
+      setIsWidgetOpen(false); // Close modal when closing
+    };
   return (
-    <Card>
+    <Card onClick={handleOpenWidget}>
+      
       <Image src={product.image} alt={product.name} />
       <Info>
         <Name>{product.name}</Name>
         <Price>${product.price.toFixed(2)}</Price>
       </Info>
+        {/* Add Listing Widget */}
+        <ListingWidget isOpen={isWidgetOpen} handleClose={handleCloseWidget} product={product}>
+        {/* The widget content you have already in ListingWidget will be rendered here */}
+        </ListingWidget>
     </Card>
   );
 };
