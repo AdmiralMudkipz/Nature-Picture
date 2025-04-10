@@ -5,11 +5,11 @@ import ProductCard from "../ProductCard";  // Imported ProductCard component
 import leafImage from "./leaf.jpg";
 
 // Sample product data (Replace with API data later)
-const products = [
-  { id: 1, name: "Leaf Painting", image: leafImage, price: 10.0 },
-  { id: 2, name: "Handmade Vase", image: leafImage, price: 25.0 },
-  { id: 3, name: "Wood Carving", image: leafImage, price: 40.0 },
-];
+// const products = [
+//   { id: 1, name: "Leaf Painting", image: leafImage, price: 10.0 },
+//   { id: 2, name: "Handmade Vase", image: leafImage, price: 25.0 },
+//   { id: 3, name: "Wood Carving", image: leafImage, price: 40.0 },
+// ];
 
 const SellerProfile: React.FC = () => {
   return (

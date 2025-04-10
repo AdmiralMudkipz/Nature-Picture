@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactPortal from "./ReactPortal";
-import Header from "./SellerProfileInfo/Header/Header";
+// import Header from "./SellerProfileInfo/Header/Header";
 
 interface ListingWidgetProps {
   isOpen: boolean;

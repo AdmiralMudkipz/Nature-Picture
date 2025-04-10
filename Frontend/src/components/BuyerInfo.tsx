@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 // import profilePicture from './profile-pic.jpeg';
 import { useUser } from "../context/UserContext"; // Adjust the path to match your project structure
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 const BuyerInfoContainer = styled.div`
   text-align: center;
   width: 100%;
@@ -44,22 +46,56 @@ interface BuyerInfoProps {
   reviewsCount: number;
 }
 
+
+const LogoutButton = styled.button`
+  
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ff7875;
+  }
+`;
+
+interface BuyerInfoProps {
+  profilePic: string;
+  name: string;
+  rating: number;
+  reviewsCount: number;
+}
+
 const BuyerInfo: React.FC<BuyerInfoProps> = ({
   profilePic,
   name,
   rating,
   reviewsCount,
 }) => {
-  const { user } = useUser(); // Access the logged-in user from the context
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:8000/api/logout/", {}, { withCredentials: true }); 
+      setUser(null);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <BuyerInfoContainer>
       <ProfilePic src={profilePic} alt={name} />
-      {/* Show the logged-in user's username or the seller's name */}
-      <BuyerName>{user ? `Welcome, ${user.username}` : name}</BuyerName>
+      <BuyerName>{user ? `Welcome, ${user.username}` : name}</BuyerName> {/* show username if logged in */}
       <Rating>
         <span>⭐ {rating}</span>
         <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
+        {user && <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>} {/* only show if user is logged in */}
       </Rating>
     </BuyerInfoContainer>
   );

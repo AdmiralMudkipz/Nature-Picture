@@ -54,3 +54,10 @@ class LoginAPIView(APIView):
                 return Response({'error': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
         except Users.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+class LogoutAPIView(APIView):
+    def post(self, request):
+        request.session.flush()  # clears session data
+        return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
