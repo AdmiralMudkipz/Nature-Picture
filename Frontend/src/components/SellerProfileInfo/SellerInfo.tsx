@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import profilePicture from './profile-pic.jpeg';
-
+// import profilePicture from './profile-pic.jpeg';
+import { useUser } from "../../context/UserContext"; // Adjust the path to match your project structure
 const SellerInfoContainer = styled.div`
   text-align: center;
   width: 100%;
@@ -35,28 +35,31 @@ const ReviewsCount = styled.span`
   color: #555;
 `;
 
-type Seller = {
-  name: string;
+
+
+interface SellerInfoProps {
   profilePic: string;
+  name: string;
   rating: number;
   reviewsCount: number;
-};
+}
 
-const SellerInfo = () => {
-  const seller: Seller = {
-    name: 'Jane Doe',
-    profilePic: profilePicture,
-    rating: 4.5,
-    reviewsCount: 120,
-  };
+const SellerInfo: React.FC<SellerInfoProps> = ({
+  profilePic,
+  name,
+  rating,
+  reviewsCount,
+}) => {
+  const { user } = useUser(); // Access the logged-in user from the context
 
   return (
     <SellerInfoContainer>
-      <ProfilePic src={seller.profilePic} alt={seller.name} />
-      <SellerName>{seller.name}</SellerName>
+      <ProfilePic src={profilePic} alt={name} />
+      {/* Show the logged-in user's username or the seller's name */}
+      <SellerName>{user ? `Welcome, ${user.username}` : name}</SellerName>
       <Rating>
-        <span>⭐ {seller.rating}</span>
-        <ReviewsCount>({seller.reviewsCount} reviews)</ReviewsCount>
+        <span>⭐ {rating}</span>
+        <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
       </Rating>
     </SellerInfoContainer>
   );

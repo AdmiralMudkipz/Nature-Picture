@@ -68,7 +68,7 @@ const SellerPage: React.FC = () => {
       </div>
 
       <div className="seller-content">
-        <SellerInfo />
+        <SellerInfo/>
       </div>
 
       <div className="listing-header-container">

@@ -1,16 +1,7 @@
-import styled from "styled-components";
-import profilePicture from "../components/SellerProfileInfo/profile-pic.jpeg";
-
-// Type definition for the buyer object
-type Buyer = {
-  name: string;
-  profilePic: string;
-  rating: number;
-  reviewsCount: number;
-};
-
-// Styled Components
-const BuyerContainer = styled.div`
+import styled from 'styled-components';
+// import profilePicture from './profile-pic.jpeg';
+import { useUser } from "../context/UserContext"; // Adjust the path to match your project structure
+const BuyerInfoContainer = styled.div`
   text-align: center;
   width: 100%;
 `;
@@ -27,8 +18,7 @@ const ProfilePic = styled.img`
 const BuyerName = styled.h1`
   font-size: 24px;
   font-weight: bold;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin: 5px 0;
 `;
 
 const Rating = styled.div`
@@ -45,24 +35,33 @@ const ReviewsCount = styled.span`
   color: #555;
 `;
 
-const BuyerInfo = () => {
-  // Placeholder data (replace this with API data once it's available)
-  const buyer: Buyer = {
-    name: "Buyer Profile",
-    profilePic: profilePicture,
-    rating: 3.5,
-    reviewsCount: 130,
-  };
+
+
+interface BuyerInfoProps {
+  profilePic: string;
+  name: string;
+  rating: number;
+  reviewsCount: number;
+}
+
+const BuyerInfo: React.FC<BuyerInfoProps> = ({
+  profilePic,
+  name,
+  rating,
+  reviewsCount,
+}) => {
+  const { user } = useUser(); // Access the logged-in user from the context
 
   return (
-    <BuyerContainer>
-      <ProfilePic src={buyer.profilePic} alt={buyer.name} />
-      <BuyerName>{buyer.name}</BuyerName>
+    <BuyerInfoContainer>
+      <ProfilePic src={profilePic} alt={name} />
+      {/* Show the logged-in user's username or the seller's name */}
+      <BuyerName>{user ? `Welcome, ${user.username}` : name}</BuyerName>
       <Rating>
-        <span>⭐ {buyer.rating}</span>
-        <ReviewsCount>({buyer.reviewsCount} reviews)</ReviewsCount>
+        <span>⭐ {rating}</span>
+        <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
       </Rating>
-    </BuyerContainer>
+    </BuyerInfoContainer>
   );
 };
 

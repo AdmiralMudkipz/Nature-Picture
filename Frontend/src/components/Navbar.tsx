@@ -20,7 +20,7 @@ const Navbar = () => {
           <Link to="/buyer-profile">Hi, {user.username}</Link>
         ) : (
           // if no user is logged in, show "Log In"
-          <Link to="/">Log In</Link>
+          <Link to="/login">Log In</Link>
         )}
 
         <Link to="/seller-profile">Seller View</Link>

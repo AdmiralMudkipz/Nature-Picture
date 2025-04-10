@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import SellerInfo from "./SellerInfo";
-import Header from "./Header";
 import ListingHeader from "./ListingHeader";
 import ProductCard from "../ProductCard";  // Imported ProductCard component
 import leafImage from "./leaf.jpg";
@@ -16,7 +15,7 @@ const SellerProfile: React.FC = () => {
   return (
     <SellerProfileWrapper>
       <HeaderContainer>
-        <Header />
+        
       </HeaderContainer>
 
       <SellerContent>
