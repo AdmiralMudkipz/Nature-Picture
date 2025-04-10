@@ -89,7 +89,7 @@ const ListingWidget: React.FC<ListingWidgetProps> = ({
     const addToCart = (e: React.FormEvent) => {
       e.preventDefault();
       //selected product here
-      console.log("Added listing to cart: ");
+      console.log("Added listing to cart: ", product);
       handleClose()
     }
     //so what i imagine i gotta do is grab whatever product from the database and show it here
