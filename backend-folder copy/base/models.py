@@ -1,6 +1,19 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 
+# This is a Django model file that defines the database schema for an art piece application.
+# It includes models for users, art pieces, purchase orders, reviews, and other related entities.
+# Each model corresponds to a table in the database, and the fields in each model correspond to the columns in those tables.
+
+class Location(models.Model):
+    location_id = models.AutoField(primary_key=True)  # Explicitly define the PK field
+    county = models.CharField(max_length=45)
+    state = models.CharField(max_length=45)
+
+    class Meta:
+        db_table = 'location'  # Specify the exact table name
+        managed = False  # Let Django know not to manage this table, because it exists in the DB already
+
 
 class ArtPiece(models.Model):
     art_id = models.AutoField(primary_key=True)
@@ -10,12 +23,14 @@ class ArtPiece(models.Model):
     image = models.CharField(max_length=255, blank=True, null=True)
     stock_amount = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    # location = models.ForeignKey('Location', models.DO_NOTHING)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
+
+    location = models.ForeignKey(Location, on_delete=models.RESTRICT, db_column='location_id')
+    user = models.ForeignKey('Users', models.DO_NOTHING, db_column='user_id')
 
     class Meta:
-        managed = False
         db_table = 'art_piece'
+        managed = False # tells Django not to create, alter, or delete tables 
+        
 
 
 class AuthGroup(models.Model):
@@ -161,14 +176,7 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
-class Location(models.Model):
-    location_id = models.AutoField(primary_key=True)
-    county = models.CharField(max_length=45)
-    state = models.CharField(max_length=45)
 
-    class Meta:
-        managed = False
-        db_table = 'location'
 
 
 class PurchaseOrder(models.Model):
