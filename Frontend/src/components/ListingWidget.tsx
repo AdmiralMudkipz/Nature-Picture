@@ -28,6 +28,7 @@ const ModalOverlay = styled.div`
 `;
 
 const Image = styled.img`
+  float: left; 
   width: 100%;
   height: auto;
   border-radius: 8px;
@@ -54,10 +55,19 @@ const CloseButton = styled.button`
   font-size: 16px;
 `;
 
+const Col = styled.div`
+  float: left;
+`
+
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
 `;
+
+const Title = styled.header`
+  font-weight: bold;
+  color: black;
+  font-size: 20px;`
 
 const SubmitButton = styled.button`
   margin-top: 15px;
@@ -101,11 +111,12 @@ const ListingWidget: React.FC<ListingWidgetProps> = ({
               <CloseButton onClick={handleClose}>X</CloseButton>
               {children}
               <StyledForm onSubmit={addToCart}>
-                <Label>Title: {product.name}</Label>
-                <Image src={product.image} alt={product.name} />
+                <Title>{product.name}</Title>
+                <Col><Image src={product.image} alt={product.name} />
+                </Col>
                 <Label>Description:</Label>
                 <p>{product.description}</p>
-                <Label>Price: ($){product.price}</Label>
+                <Label>Price: ${product.price.toFixed(2)}</Label>
                 <Label>Stock: {product.stock}</Label>
                 <Label>Type of Art: {product.typeOfArt}</Label>
                 <Label>County: {product.location}</Label>
