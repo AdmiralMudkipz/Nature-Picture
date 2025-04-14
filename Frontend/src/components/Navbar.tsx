@@ -1,33 +1,117 @@
 // Import necessary components and hooks
 import { Link } from 'react-router-dom';
-import { useUser } from '../context/UserContext'; 
+import { useUser } from '../context/UserContext';
+import { FaUser, FaStore, FaShoppingCart } from 'react-icons/fa';
+import styled from 'styled-components';
+import logo from '../assets/logo.png';
 
 const Navbar = () => {
-  const { user } = useUser(); // access the user data from the context
+  const { user } = useUser();
 
   return (
-    <nav className="navbar">
-      {/* Brand/Logo section */}
-      <div className="navbar-brand">
-        <Link to="/Home">Nature Picture</Link>
-      </div>
-      
-      {/* Navigation links */}
-      <div className="navbar-links">
+    <NavbarContainer>
+      <NavSection>
         {user ? (
-          // if the user is logged in, show "Hi, [username]". when they click on this they'll be 
-          // able to go to their buyer profile page & see past orders.
-          <Link to="/buyer-profile">Hi, {user.username}</Link>
+          <NavLink to="/buyer-profile">
+            <FaUser />
+            <span>Hi, {user.username}</span>
+          </NavLink>
         ) : (
-          // if no user is logged in, show "Log In"
-          <Link to="/login">Log In</Link>
+          <NavLink to="/login">
+            <FaUser />
+            <span>Log In</span>
+          </NavLink>
         )}
+      </NavSection>
 
-        <Link to="/seller-profile">Seller View</Link>
-        <Link to="/cart">Cart</Link>
-      </div>
-    </nav>
+      <LogoSection>
+        <Link to="/Home">
+          <LogoImage src={logo} alt="Nature Picture Logo" />
+        </Link>
+      </LogoSection>
+
+      <NavSection>
+        <NavLink to="/seller-profile">
+          <FaStore />
+          <span>Seller</span>
+        </NavLink>
+        <NavLink to="/cart">
+          <FaShoppingCart />
+          <span>Cart</span>
+        </NavLink>
+      </NavSection>
+    </NavbarContainer>
   );
 };
+
+const NavbarContainer = styled.nav`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1c1c1c;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const NavSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+
+  &:last-child {
+    justify-content: flex-end;
+  }
+`;
+
+const LogoSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 2;
+  position: relative;
+  z-index: 1001;
+`;
+
+const LogoImage = styled.img`
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const NavLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #4CAF50;
+  }
+
+  svg {
+    font-size: 1.2rem;
+  }
+
+  span {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+`;
 
 export default Navbar;
