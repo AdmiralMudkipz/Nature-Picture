@@ -4,6 +4,7 @@ import Widget from '../components/modalstuff/ListingWidget';
 import Modal from '../components/modalstuff/Modal';
 import SearchBar from '../components/SearchBar';
 import Sidebar from '../components/Sidebar';
+import { useCart } from '../context/CartContext';
 import leafPainting from '../assets/leaf painting.jpg';
 import handmadeVase from '../assets/vase.jpg';
 import woodCarving from '../assets/wood carving.jpg';
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { addToCart } = useCart();
 
   const handleSearch = (query: string) => {
     console.log('Searching for:', query);
@@ -27,31 +29,34 @@ const Home: React.FC = () => {
 
   const products = [
     {
-      id: 1,
+      id: '1',
       images: [leafPainting],
       title: 'Leaf Painting',
       artist: 'ArtByEmily',
       price: 20.0,
       typeOfArt: 'Painting',
       bio: 'A vibrant painting of a leaf.',
+      sellerEmail: 'emily@example.com'
     },
     {
-      id: 2,
+      id: '2',
       images: [handmadeVase],
       title: 'Handmade Vase',
       artist: 'JohnDoe',
       price: 40.0,
       typeOfArt: 'Pottery',
       bio: 'An elegant handmade vase.',
+      sellerEmail: 'john@example.com'
     },
     {
-      id: 3,
+      id: '3',
       images: [woodCarving],
       title: 'Wood Carving',
       artist: 'CraftsmanJoe',
       price: 60.0,
       typeOfArt: 'Woodwork',
       bio: 'A beautiful wooden sculpture.',
+      sellerEmail: 'joe@example.com'
     },
   ];
 
@@ -67,7 +72,16 @@ const Home: React.FC = () => {
 
   const handleAddToCart = () => {
     if (selectedProduct) {
+      addToCart({
+        id: selectedProduct.id,
+        title: selectedProduct.title,
+        artist: selectedProduct.artist,
+        price: selectedProduct.price,
+        image: selectedProduct.images[0],
+        sellerEmail: selectedProduct.sellerEmail
+      });
       alert(`Added ${selectedProduct.title} to your cart!`);
+      closeModal();
     }
   };
 
@@ -93,7 +107,8 @@ const Home: React.FC = () => {
                 title={product.title}
                 artist={product.artist}
                 price={product.price}
-                isLandscape={true}
+                sellerEmail={product.sellerEmail}
+                id={product.id}
               />
             </WidgetWrapper>
           ))}
@@ -116,43 +131,36 @@ const Home: React.FC = () => {
 };
 
 const HomeContainer = styled.div`
+  padding: 2rem;
   background-color: #1c1c1c;
-  color: #ffffff;
   min-height: 100vh;
-  padding: 90px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 `;
 
 const Header = styled.h1`
+  color: #ffffff;
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 36px;
+  margin-bottom: 2rem;
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
-  width: 100%;
+  gap: 2rem;
   max-width: 1400px;
-  position: relative;
   margin: 0 auto;
-  padding: 20px;
 `;
 
 const WidgetGrid = styled.div<{ $isSidebarOpen: boolean }>`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  width: 100%;
-  transition: filter 0.3s ease;
-  filter: ${({ $isSidebarOpen }) => ($isSidebarOpen ? 'blur(2px)' : 'none')};
-  pointer-events: ${({ $isSidebarOpen }) => ($isSidebarOpen ? 'none' : 'auto')};
+  gap: 2rem;
+  flex: 1;
+  filter: ${({ $isSidebarOpen }) => $isSidebarOpen ? 'blur(2px)' : 'none'};
+  pointer-events: ${({ $isSidebarOpen }) => $isSidebarOpen ? 'none' : 'auto'};
 `;
 
 const WidgetWrapper = styled.div`
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
 
   &:hover {
     transform: scale(1.02);

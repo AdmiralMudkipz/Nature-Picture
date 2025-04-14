@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 // WidgetProps Interface
@@ -7,60 +7,47 @@ interface WidgetProps {
   title: string;
   artist: string;
   price: number;
-  isLandscape: boolean;
+  sellerEmail: string;
+  id: string;
 }
 
-const Widget: React.FC<WidgetProps> = ({ image, title, artist, price, isLandscape }) => {
-  const [imageOrientation, setImageOrientation] = useState<'landscape' | 'portrait'>('landscape');
-
-  useEffect(() => {
-    const img = document.createElement('img');
-    img.src = image;
-    img.onload = () => {
-      setImageOrientation(img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait');
-    };
-  }, [image]);
-
+const Widget: React.FC<WidgetProps> = ({ image, title, artist, price, sellerEmail, id }) => {
   return (
-    <WidgetContainer isLandscape={imageOrientation === 'landscape'}>
-      <ImageContainer>
-        <Image 
-          src={image} 
-          alt={title} 
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
-          }}
-        />
-      </ImageContainer>
-      <InfoOverlay>
-        <Title>{title}</Title>
-        <Artist>By: {artist}</Artist>
-        <Price>${price.toFixed(2)}</Price>
-      </InfoOverlay>
+    <WidgetContainer>
+      <ImageWrapper>
+        <Image src={image} alt={title} />
+        <GradientOverlay />
+      </ImageWrapper>
+      <Overlay>
+        <Info>
+          <Title>{title}</Title>
+          <Artist>by {artist}</Artist>
+          <Price>${price.toFixed(2)}</Price>
+        </Info>
+      </Overlay>
     </WidgetContainer>
   );
 };
 
 // Styled-components
-const WidgetContainer = styled.div<{ isLandscape: boolean }>`
+const WidgetContainer = styled.div`
   position: relative;
-  width: ${({ isLandscape }) => (isLandscape ? '300px' : '200px')};
-  height: ${({ isLandscape }) => (isLandscape ? '200px' : '300px')};
-  border-radius: 8px;
+  width: 300px;
+  height: 300px;
+  border-radius: 12px;
   overflow: hidden;
-  margin: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-  background: #2a2a2a;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   }
 `;
 
-const ImageContainer = styled.div`
+const ImageWrapper = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -70,46 +57,79 @@ const Image = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   ${WidgetContainer}:hover & {
     transform: scale(1.1);
   }
 `;
 
-const InfoOverlay = styled.div`
+const GradientOverlay = styled.div`
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  color: #ffffff;
-  padding: 15px;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   ${WidgetContainer}:hover & {
+    opacity: 1;
+  }
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  ${WidgetContainer}:hover & {
+    opacity: 1;
     transform: translateY(0);
   }
 `;
 
+const Info = styled.div`
+  text-align: left;
+  color: white;
+  width: 100%;
+`;
+
 const Title = styled.h3`
-  margin: 0 0 5px;
-  font-size: 18px;
+  margin: 0;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const Artist = styled.p`
-  margin: 0 0 5px;
-  font-size: 14px;
-  opacity: 0.9;
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `;
 
 const Price = styled.p`
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: bold;
   color: #4CAF50;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `;
 
 export default Widget;
