@@ -20,6 +20,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('api/', include('api.urls')),
-    path('', include('base.urls')),      # Include URLs from the 'base' app at the root (if you have other non-API views there)
+    path('base/', include('base.urls')),      # Include URLs from the 'base' app at the root (if you have other non-API views there)
 ]

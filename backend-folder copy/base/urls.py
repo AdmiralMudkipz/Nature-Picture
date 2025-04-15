@@ -1,9 +1,10 @@
-from django.urls import path
-#from api import views
-#from . import views  # Import your views from the current directory
+from django.urls import path, include
+from users import views as user_views
+from artpiece import views as artpiece_views
+
 
 urlpatterns = [
     # Define your URL patterns here
-   # path('login/', views.login_api, name='login_api'),
-    # Add other URLs for your base app here
+    path('users/', include('users.urls')),
+    path('artpieces/', include('artpiece.urls')),
 ]

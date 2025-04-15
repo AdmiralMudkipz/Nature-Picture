@@ -1,13 +1,5 @@
-
 from rest_framework import serializers
-from base.models import Users , ArtPiece 
-
-
-class ArtPieceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ArtPiece
-        fields = '__all__'
-
+from base.models import Users, ArtPiece, Location
 
 
 
