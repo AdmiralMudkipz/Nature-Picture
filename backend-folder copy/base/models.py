@@ -20,7 +20,9 @@ class ArtPiece(models.Model):
     type_of_art = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    image = models.CharField(max_length=255, blank=True, null=True)
+    
+    image = models.ImageField(upload_to='art_pieces/', blank=True, null=True)
+    
     stock_amount = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 

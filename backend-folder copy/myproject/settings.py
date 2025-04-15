@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +46,25 @@ INSTALLED_APPS = [
     "base",
     'rest_framework_simplejwt',
     'corsheaders',
+    'storages',
 ]
+
+# AWS s3
+# AWS S3 Configuration
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')  # Default to us-east-1 if not specified
+AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_S3_ACCESS_KEY_ID')
+AWS_S3_SECRET_ACCESS_KEY = os.environ.get('AWS_S3_SECRET_ACCESS_KEY')
+
+# Optional S3 settings
+AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with the same name
+# Configure Django to use S3 for static files and/or media files
+if AWS_STORAGE_BUCKET_NAME:
+    # For static files
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    
+    # For media files (user uploads)
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 
@@ -98,7 +119,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nature_picture_backup',
         'USER': 'root',
-        'PASSWORD': 'vufbuc-Gyi12',
+        'PASSWORD': 'password',
         'HOST': 'localhost',  # or your MySQL server IP
         'PORT': '3306',        # default MySQL port
     }

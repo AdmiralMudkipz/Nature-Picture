@@ -2,9 +2,25 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
 from base.models import Location, ArtPiece, Users  
 from .serializers import ArtPieceSerializer, SignupSerializer  # Import the serializer
+
+class TestUploadAPIView(APIView):
+    def post(self, request):
+        if 'file' not in request.FILES:
+            return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        file = request.FILES['file']
+        file_path = default_storage.save(f'uploads/{file.name}', file)
+        file_url = default_storage.url(file_path)
+        
+        return Response({
+            'message': 'File uploaded successfully',
+            'file_path': file_path,
+            'file_url': file_url
+        }, status=status.HTTP_201_CREATED)
 
 
 class ArtPieceCreateAPIView(APIView):
