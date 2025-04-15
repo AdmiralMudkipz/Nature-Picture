@@ -46,7 +46,7 @@ const Login = () => {
 
     try {
       const response = await axios.post<LoginResponse>(
-        "http://localhost:8000/api/login/",   // switch out with not on localhost 
+        "http://localhost:8000/base/users/login",   // switch out with not on localhost 
         { username, password },
         { withCredentials: true }  // Ensure session cookie is sent with the request
       );
