@@ -12,7 +12,7 @@ const SignUp: React.FC = () => {
   );
 };
 
-const Container = styled.div`
+const Container = styled.div` 
   padding: 20px;
   color: #ffffff;
 `;
