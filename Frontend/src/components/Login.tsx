@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../context/UserContext"; // Import the UserContext hook
 import axios from "axios";
 import styled from "styled-components";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 
 interface LoginResponse {
   username: string;
@@ -12,16 +13,34 @@ interface LoginResponse {
   email: string;      // Add email in the response type
 }
 
+interface SignUpData {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  password: string;
+  confirm_password: string;
+}
+
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [signUpData, setSignUpData] = useState<SignUpData>({
+    username: "",
+    email: "",
+    first_name: "",
+    last_name: "",
+    password: "",
+    confirm_password: ""
+  });
+  const [signUpErrors, setSignUpErrors] = useState<Record<string, string>>({});
   const { setUser } = useUser(); // Destructure setUser from context to update the user state
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -53,38 +72,186 @@ const Login = () => {
     }
   };
 
+  const validateSignUp = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!signUpData.username) newErrors.username = 'Username is required';
+    if (!signUpData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(signUpData.email)) newErrors.email = 'Email is invalid';
+    if (!signUpData.first_name) newErrors.first_name = 'First name is required';
+    if (!signUpData.last_name) newErrors.last_name = 'Last name is required';
+    if (!signUpData.password) newErrors.password = 'Password is required';
+    else if (signUpData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    if (!signUpData.confirm_password) newErrors.confirm_password = 'Please confirm your password';
+    else if (signUpData.password !== signUpData.confirm_password) newErrors.confirm_password = 'Passwords do not match';
+
+    setSignUpErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateSignUp()) return;
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/register/",
+        {
+          username: signUpData.username,
+          email: signUpData.email,
+          first_name: signUpData.first_name,
+          last_name: signUpData.last_name,
+          password: signUpData.password
+        }
+      );
+      
+      console.log("Sign up successful:", response.data);
+      setIsLogin(true); // Switch to login mode after successful signup
+    } catch (error: any) {
+      console.error("Sign up failed:", error);
+      setError(error.response?.data?.message || "Sign up failed. Please try again.");
+    }
+  };
+
+  const handleSignUpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSignUpData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (signUpErrors[name]) {
+      setSignUpErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
   return (
     <LoginContainer>
       <LoginBox>
         <Title>{isLogin ? "Welcome Back" : "Create Account"}</Title>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="username">Username</Label>
-            <Input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="Enter your username"
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-            />
-          </FormGroup>
-          <SubmitButton type="submit">
-            {isLogin ? "Login" : "Sign Up"}
-          </SubmitButton>
-        </Form>
+        {isLogin ? (
+          <Form onSubmit={handleLogin}>
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaUser /></Icon>
+                <Input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  placeholder="Username"
+                />
+              </InputGroup>
+            </FormGroup>
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaLock /></Icon>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Password"
+                />
+              </InputGroup>
+            </FormGroup>
+            <SubmitButton type="submit">Login</SubmitButton>
+          </Form>
+        ) : (
+          <Form onSubmit={handleSignUp}>
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaUser /></Icon>
+                <Input
+                  type="text"
+                  name="username"
+                  value={signUpData.username}
+                  onChange={handleSignUpChange}
+                  placeholder="Username"
+                  $hasError={!!signUpErrors.username}
+                />
+              </InputGroup>
+              {signUpErrors.username && <ErrorText>{signUpErrors.username}</ErrorText>}
+            </FormGroup>
+
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaEnvelope /></Icon>
+                <Input
+                  type="email"
+                  name="email"
+                  value={signUpData.email}
+                  onChange={handleSignUpChange}
+                  placeholder="Email"
+                  $hasError={!!signUpErrors.email}
+                />
+              </InputGroup>
+              {signUpErrors.email && <ErrorText>{signUpErrors.email}</ErrorText>}
+            </FormGroup>
+
+            <FormRow>
+              <FormGroup>
+                <Input
+                  type="text"
+                  name="first_name"
+                  value={signUpData.first_name}
+                  onChange={handleSignUpChange}
+                  placeholder="First Name"
+                  $hasError={!!signUpErrors.first_name}
+                />
+                {signUpErrors.first_name && <ErrorText>{signUpErrors.first_name}</ErrorText>}
+              </FormGroup>
+
+              <FormGroup>
+                <Input
+                  type="text"
+                  name="last_name"
+                  value={signUpData.last_name}
+                  onChange={handleSignUpChange}
+                  placeholder="Last Name"
+                  $hasError={!!signUpErrors.last_name}
+                />
+                {signUpErrors.last_name && <ErrorText>{signUpErrors.last_name}</ErrorText>}
+              </FormGroup>
+            </FormRow>
+
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaLock /></Icon>
+                <Input
+                  type="password"
+                  name="password"
+                  value={signUpData.password}
+                  onChange={handleSignUpChange}
+                  placeholder="Password"
+                  $hasError={!!signUpErrors.password}
+                />
+              </InputGroup>
+              {signUpErrors.password && <ErrorText>{signUpErrors.password}</ErrorText>}
+            </FormGroup>
+
+            <FormGroup>
+              <InputGroup>
+                <Icon><FaLock /></Icon>
+                <Input
+                  type="password"
+                  name="confirm_password"
+                  value={signUpData.confirm_password}
+                  onChange={handleSignUpChange}
+                  placeholder="Confirm Password"
+                  $hasError={!!signUpErrors.confirm_password}
+                />
+              </InputGroup>
+              {signUpErrors.confirm_password && <ErrorText>{signUpErrors.confirm_password}</ErrorText>}
+            </FormGroup>
+
+            <SubmitButton type="submit">Sign Up</SubmitButton>
+          </Form>
+        )}
         <ToggleText>
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <ToggleButton onClick={() => setIsLogin(!isLogin)}>
@@ -110,7 +277,7 @@ const LoginBox = styled.div`
   padding: 40px;
   border-radius: 12px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 `;
 
@@ -130,6 +297,12 @@ const ErrorMessage = styled.div`
   border-radius: 6px;
 `;
 
+const ErrorText = styled.div`
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -142,15 +315,29 @@ const FormGroup = styled.div`
   gap: 8px;
 `;
 
-const Label = styled.label`
-  color: #cccccc;
-  font-size: 16px;
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 `;
 
-const Input = styled.input`
-  padding: 12px;
+const InputGroup = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const Icon = styled.div`
+  position: absolute;
+  left: 12px;
+  color: #888;
+`;
+
+const Input = styled.input<{ $hasError?: boolean }>`
+  width: 100%;
+  padding: 12px 12px 12px 40px;
   border-radius: 6px;
-  border: 1px solid #444;
+  border: 1px solid ${({ $hasError }) => ($hasError ? '#ff4d4f' : '#444')};
   background-color: #2c2c2c;
   color: #ffffff;
   font-size: 16px;
