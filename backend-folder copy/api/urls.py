@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ArtPieceCreateAPIView, LoginAPIView, SignupAPIView, LogoutAPIView
+from .views import ArtPieceCreateAPIView, LoginAPIView, SignupAPIView, LogoutAPIView, TestUploadAPIView
 
 urlpatterns = [
     path('create-artpiece/', ArtPieceCreateAPIView.as_view(), name='create-artpiece'),
