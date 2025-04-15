@@ -1,9 +1,9 @@
 // Import necessary components and hooks
 import { Link } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../../context/UserContext';
 import { FaUser, FaStore, FaShoppingCart } from 'react-icons/fa';
 import styled from 'styled-components';
-import logo from '../assets/logo.png';
+import logo from '../../assets/logo.png';
 
 const Navbar = () => {
   const { user } = useUser();

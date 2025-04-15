@@ -1,8 +1,18 @@
 
 from rest_framework import serializers
-from base.models import Users  
+from base.models import Users , ArtPiece 
 
-class SignupSerializer(serializers.ModelSerializer): # defining a custom serializer for user signups
+
+class ArtPieceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArtPiece
+        fields = '__all__'
+
+
+
+
+# The serializer would define how the data from the signup request is converted into a User instance in the database. 
+class SignupSerializer(serializers.ModelSerializer): 
     password_confirm = serializers.CharField(write_only=True) # needed to check if the user typed their password correctly twice 
 
     class Meta:

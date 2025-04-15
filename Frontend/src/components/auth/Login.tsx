@@ -1,55 +1,51 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "../context/UserContext"; // Import the UserContext hook
+import { useUser } from "../../context/UserContext";
 import axios from "axios";
 import styled from "styled-components";
 
 interface LoginResponse {
-  username: string;
+  email: string;
   user_id: number;
-  first_name: string; // Add first_name in the response type
-  last_name: string;  // Add last_name in the response type
-  email: string;      // Add email in the response type
+  first_name: string;
+  last_name: string;
+  username: string;
 }
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const { setUser } = useUser(); // Destructure setUser from context to update the user state
+  const { setUser } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
+   
     try {
       const response = await axios.post<LoginResponse>(
-        "http://localhost:8000/api/login/",   // switch out with not on localhost 
-        { username, password },
-        { withCredentials: true }  // Ensure session cookie is sent with the request
+        "http://localhost:8000/api/login/",
+        { email, password },
+        { withCredentials: true }
       );
-
-      // Destructure the response data
-      const { username: userName, user_id, first_name, last_name, email } = response.data;
-
-      // Update the user context
+  
+      const { email: userEmail, user_id, first_name, last_name, username } = response.data;
+  
       setUser({
-        username: userName,
+        email: userEmail,
         user_id,
         first_name,
         last_name,
-        email,
+        username,
       });
-
+  
       const redirectPath = location.state?.from || "/home";
       navigate(redirectPath);
       console.log("Login successful:", response.data);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login failed:", error);
-      setError(error.response?.data?.message || "Login failed. Please check your credentials.");
+      alert("Login failed. Please check your credentials.");
     }
   };
 
@@ -57,17 +53,16 @@ const Login = () => {
     <LoginContainer>
       <LoginBox>
         <Title>{isLogin ? "Welcome Back" : "Create Account"}</Title>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="Enter your email"
             />
           </FormGroup>
           <FormGroup>
@@ -119,15 +114,6 @@ const Title = styled.h2`
   text-align: center;
   margin-bottom: 30px;
   font-size: 28px;
-`;
-
-const ErrorMessage = styled.div`
-  color: #ff4d4f;
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: rgba(255, 77, 79, 0.1);
-  border-radius: 6px;
 `;
 
 const Form = styled.form`

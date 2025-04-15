@@ -4,7 +4,6 @@ import Widget from '../components/modalstuff/ListingWidget';
 import Modal from '../components/modalstuff/Modal';
 import SearchBar from '../components/SearchBar';
 import Sidebar from '../components/Sidebar';
-import { useCart } from '../context/CartContext';
 import leafPainting from '../assets/leaf painting.jpg';
 import handmadeVase from '../assets/vase.jpg';
 import woodCarving from '../assets/wood carving.jpg';
@@ -13,7 +12,6 @@ const Home: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { addToCart } = useCart();
 
   const handleSearch = (query: string) => {
     console.log('Searching for:', query);
@@ -72,16 +70,7 @@ const Home: React.FC = () => {
 
   const handleAddToCart = () => {
     if (selectedProduct) {
-      addToCart({
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        artist: selectedProduct.artist,
-        price: selectedProduct.price,
-        image: selectedProduct.images[0],
-        sellerEmail: selectedProduct.sellerEmail
-      });
       alert(`Added ${selectedProduct.title} to your cart!`);
-      closeModal();
     }
   };
 
@@ -107,6 +96,7 @@ const Home: React.FC = () => {
                 title={product.title}
                 artist={product.artist}
                 price={product.price}
+                isLandscape={true}
                 sellerEmail={product.sellerEmail}
                 id={product.id}
               />
@@ -123,7 +113,8 @@ const Home: React.FC = () => {
           typeOfArt={selectedProduct.typeOfArt}
           bio={selectedProduct.bio}
           onClose={closeModal}
-          onAddToCart={handleAddToCart}
+          sellerEmail={selectedProduct.sellerEmail}
+          id={selectedProduct.id}
         />
       )}
     </HomeContainer>
@@ -131,36 +122,43 @@ const Home: React.FC = () => {
 };
 
 const HomeContainer = styled.div`
-  padding: 2rem;
   background-color: #1c1c1c;
+  color: #ffffff;
   min-height: 100vh;
+  padding: 90px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Header = styled.h1`
-  color: #ffffff;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
+  font-size: 36px;
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
-  gap: 2rem;
+  width: 100%;
   max-width: 1400px;
+  position: relative;
   margin: 0 auto;
+  padding: 20px;
 `;
 
 const WidgetGrid = styled.div<{ $isSidebarOpen: boolean }>`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  flex: 1;
-  filter: ${({ $isSidebarOpen }) => $isSidebarOpen ? 'blur(2px)' : 'none'};
-  pointer-events: ${({ $isSidebarOpen }) => $isSidebarOpen ? 'none' : 'auto'};
+  gap: 20px;
+  width: 100%;
+  transition: filter 0.3s ease;
+  filter: ${({ $isSidebarOpen }) => ($isSidebarOpen ? 'blur(2px)' : 'none')};
+  pointer-events: ${({ $isSidebarOpen }) => ($isSidebarOpen ? 'none' : 'auto')};
 `;
 
 const WidgetWrapper = styled.div`
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 
   &:hover {
     transform: scale(1.02);
