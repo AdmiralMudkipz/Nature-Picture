@@ -27,6 +27,7 @@ const Card = styled.div`
   background-color: #fff;
   text-align: center;
   padding: 10px;
+  cursor: pointer;
 `;
 
 const Image = styled.img`
