@@ -10,7 +10,6 @@ import Login from './components/Login';
 import SignUp from './pages/Sign-Up';
 import ProtectedRoute from './components/ProtectedRoute';
 import BuyerView from './pages/BuyerView';
-import WidgetTest from './pages/WidgetTest';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -71,7 +70,7 @@ function App() {
                     }
                   />
                   <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/widget-test" element={<WidgetTest />} />
+                  {/* <Route path="/widget-test" element={<WidgetTest />} /> */}
                   <Route path="*" element={<div>404 - Page Not Found</div>} />
                   {/* widget test route for jenna */}
                 </Routes>
