@@ -2,11 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from rest_framework.generics import RetrieveAPIView,ListAPIView
+from rest_framework.generics import RetrieveAPIView,ListAPIView, DestroyAPIView
 from django.shortcuts import get_object_or_404
 from base.models import Location, ArtPiece, Users  
 from .serializers import ArtPieceSerializer # Import the serializer
-
 
 # uses Django REST Framework's RetrieveAPIView which is made for retrieving a single object 
 class ArtPieceDetailAPIView(RetrieveAPIView):
@@ -20,6 +19,18 @@ class ArtPieceDetailAPIView(RetrieveAPIView):
 class ArtPieceListAPIView(ListAPIView):
     queryset = ArtPiece.objects.all()
     serializer_class = ArtPieceSerializer
+    
+
+# uses Django REST Framework's DestroyAPIView which is made for deleting a single object. 
+# not sure if this will ever be needed. 
+class ArtPieceDeleteAPIView(DestroyAPIView):
+    queryset = ArtPiece.objects.all() # what model to look into
+    serializer_class = ArtPieceSerializer
+    lookup_field = 'art_id' # the field to look up by (pk) 
+    
+
+
+# Handles the creation of a new art piece.
 
 class ArtPieceCreateAPIView(APIView):
     def post(self, request):

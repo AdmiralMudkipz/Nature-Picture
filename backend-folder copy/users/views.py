@@ -8,8 +8,6 @@ from base.models import Location, ArtPiece, Users
 from .serializers import SignupSerializer  # Import the serializer
 
 
-
-
 # Handles user signup functionality.
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
@@ -33,7 +31,6 @@ class SignupAPIView(APIView):
 # Handles the login functionality. It is an API endpoint that 
 # allows the frontend to send login data (username and password), checks the credentials 
 # against the database, and returns a response based on whether the login is successful or not.
-
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
