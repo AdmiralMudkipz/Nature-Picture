@@ -181,7 +181,7 @@ class PurchaseOrder(models.Model):
     purchase_order_id = models.AutoField(primary_key=True)
     date_purchased = models.DateField()
     buyer = models.ForeignKey('Users', models.DO_NOTHING)
-    seller = models.ForeignKey('Users', models.DO_NOTHING, related_name='purchaseorder_seller_set')
+    
 
     class Meta:
         managed = False

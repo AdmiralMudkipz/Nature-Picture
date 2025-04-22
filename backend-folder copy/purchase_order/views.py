@@ -25,6 +25,7 @@ class PurchaseOrderListAPIView(ListAPIView):
         return PurchaseOrder.objects.filter(buyer=user)  # Assuming 'buyer' is a ForeignKey to 'Users'
     
     
+    
 # create a new purchase order 
 # class PurchaseOrderCreateAPIView(CreateAPIView):
 #     queryset = PurchaseOrderSerializer.objects.all()

@@ -12,7 +12,6 @@ class PurchaseOrderArtPieceSerializer(serializers.ModelSerializer):
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     buyer = UserSerializer(read_only=True)
-    seller = UserSerializer(read_only=True)
     art_pieces = serializers.SerializerMethodField()
 
     class Meta:

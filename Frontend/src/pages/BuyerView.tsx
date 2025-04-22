@@ -28,7 +28,7 @@ const BuyerView: React.FC = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/base/orders/${user.user_id}/purchases/`
+          `http://localhost:8000/base/purchase_order/purchase-history/`
         );
         const allProducts = response.data;
 

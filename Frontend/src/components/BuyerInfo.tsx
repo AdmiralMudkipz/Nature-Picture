@@ -3,6 +3,50 @@ import styled from 'styled-components';
 import { useUser } from "../context/UserContext"; // Adjust the path to match your project structure
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
+
+interface BuyerInfoProps {
+  profilePic: string;
+  name: string;
+  rating: number;
+  reviewsCount: number;
+}
+
+const BuyerInfo: React.FC<BuyerInfoProps> = ({
+  profilePic,
+  name,
+  rating,
+  reviewsCount,
+}) => {
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:8000/base/users/logout/", {}, { withCredentials: true }); 
+      setUser(null);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  return (
+    <BuyerInfoContainer>
+      <ProfilePic src={profilePic} alt={name} />
+      <BuyerName>{user ? `Welcome, ${user.username}` : name}</BuyerName> {/* show username if logged in */}
+      <Rating>
+        <span>⭐ {rating}</span>
+        <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
+        {user && <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>} {/* only show if user is logged in */}
+      </Rating>
+    </BuyerInfoContainer>
+  );
+};
+
+export default BuyerInfo;
+
+
 const BuyerInfoContainer = styled.div`
   text-align: center;
   width: 100%;
@@ -38,7 +82,6 @@ const ReviewsCount = styled.span`
 `;
 
 
-
 interface BuyerInfoProps {
   profilePic: string;
   name: string;
@@ -61,44 +104,3 @@ const LogoutButton = styled.button`
     background-color: #ff7875;
   }
 `;
-
-interface BuyerInfoProps {
-  profilePic: string;
-  name: string;
-  rating: number;
-  reviewsCount: number;
-}
-
-const BuyerInfo: React.FC<BuyerInfoProps> = ({
-  profilePic,
-  name,
-  rating,
-  reviewsCount,
-}) => {
-  const { user, setUser } = useUser();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:8000/base/user/logout/", {}, { withCredentials: true }); 
-      setUser(null);
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  return (
-    <BuyerInfoContainer>
-      <ProfilePic src={profilePic} alt={name} />
-      <BuyerName>{user ? `Welcome, ${user.username}` : name}</BuyerName> {/* show username if logged in */}
-      <Rating>
-        <span>⭐ {rating}</span>
-        <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
-        {user && <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>} {/* only show if user is logged in */}
-      </Rating>
-    </BuyerInfoContainer>
-  );
-};
-
-export default BuyerInfo;
