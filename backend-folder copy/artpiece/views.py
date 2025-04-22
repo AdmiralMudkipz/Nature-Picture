@@ -12,6 +12,16 @@ class ArtPieceDetailAPIView(RetrieveAPIView):
     queryset = ArtPiece.objects.all()
     serializer_class = ArtPieceSerializer
     lookup_field = 'art_id'
+    
+# retrieve products for a specific user 
+class SellerArtPieceListAPIView(ListAPIView):
+    serializer_class = ArtPieceSerializer
+
+    def get_queryset(self):
+        seller_id = self.kwargs.get("seller_id")  # extract seller_id from URL
+        return ArtPiece.objects.filter(user_id=seller_id)  # filter by the user_id in the ArtPiece model
+
+
 
 # uses Django REST Framework's ListAPIView which is made for listing multiple objects
 # this is used to get a list of all art pieces in the database
@@ -31,7 +41,6 @@ class ArtPieceDeleteAPIView(DestroyAPIView):
 
 
 # Handles the creation of a new art piece.
-
 class ArtPieceCreateAPIView(APIView):
     def post(self, request):
         # authentication Check
@@ -64,8 +73,8 @@ class ArtPieceCreateAPIView(APIView):
 
         # prepare Art Data with user_id included
         art_data = request.data.copy()
-        art_data['location'] = location.location_id
-        art_data['user'] = user.user_id  # This is the critical fix
+        art_data['location_id'] = location.location_id
+        art_data['user_id'] = user.user_id  # This is the critical fix
 
         # serializer handling
         serializer = ArtPieceSerializer(data=art_data)

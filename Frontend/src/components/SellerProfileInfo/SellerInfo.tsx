@@ -69,7 +69,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/api/logout/", {}, { withCredentials: true });
+      await axios.post("http://localhost:8000/base/users/logout/", {}, { withCredentials: true });
       setUser(null);
       navigate("/login");
     } catch (error) {

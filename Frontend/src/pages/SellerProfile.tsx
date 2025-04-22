@@ -1,46 +1,58 @@
 import React, { useState, useEffect } from "react";
 import SellerInfo from "../components/SellerProfileInfo/SellerInfo";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader";
-import ProductCard from "../components/ProductCard";
-import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
-import Navbar from "../components/Navbar";
+import ListingWidget from "../components/modalstuff/ListingWidget";
+import ListingModal from "../components/modalstuff/Modal"; // assuming this is your modal
+import { useUser } from "../context/UserContext";
+import axios from "axios";
+
+// This is the seller profile page that is being used
 
 interface Product {
   id: number;
   name: string;
   price: number;
   image: string;
-  date: string; // Added for sorting "newest"
+  date: string;
 }
 
-// Sample product data (Replace with API data later)
-const sellerProducts: Product[] = [
-  {
-    id: 1,
-    name: "Leaf Painting",
-    image: leafImage,
-    price: 10.0,
-    date: "2025-04-01",
-  },
-  {
-    id: 2,
-    name: "Handmade Vase",
-    image: leafImage,
-    price: 25.0,
-    date: "2025-04-03",
-  },
-  {
-    id: 3,
-    name: "Wood Carving",
-    image: leafImage,
-    price: 40.0,
-    date: "2025-04-02",
-  },
-];
-
 const SellerPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>(sellerProducts);
+  const { user } = useUser();
+  const [products, setProducts] = useState<Product[]>([]);
   const [sortMethod, setSortMethod] = useState<string>("newest");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log("SellerProfile: user =", user);
+    console.log("SellerProfile: user.user_id =", user?.user_id);
+
+    const fetchSellerProducts = async () => {
+      if (!user?.user_id) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/base/artpieces/${user.user_id}/art/`
+        );
+        const allProducts = response.data;
+
+        const formatted = allProducts.map((item: any) => ({
+          id: item.art_id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          date: item.date_created || "2025-04-01",
+        }));
+
+        setProducts(formatted);
+        console.log("PRODUCT:", formatted);
+      } catch (err) {
+        console.error("Error fetching seller products:", err);
+      }
+    };
+
+    fetchSellerProducts();
+  }, [user]);
 
   useEffect(() => {
     const sorted = [...products].sort((a, b) => {
@@ -61,14 +73,20 @@ const SellerPage: React.FC = () => {
     setProducts(sorted);
   }, [sortMethod]);
 
+  const handleWidgetClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
     <div className="seller-profile">
-      <div className="navbar">
-        <Navbar />
-      </div>
-
       <div className="seller-content">
-        <SellerInfo/>
+        <SellerInfo />
       </div>
 
       <div className="listing-header-container">
@@ -79,11 +97,42 @@ const SellerPage: React.FC = () => {
         />
       </div>
 
-      <div className="product-card-wrapper">
+      <div
+        className="product-card-wrapper"
+        style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
+      >
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <div
+            key={product.id}
+            onClick={() => handleWidgetClick(product)}
+            style={{ cursor: "pointer" }}
+          >
+            <ListingWidget
+              id={product.id.toString()}
+              image={product.image}
+              title={product.name}
+              artist={user?.username || "Unknown Artist"}
+              price={Number(product.price)} // Ensure price is a number
+              sellerEmail={user?.email || "Unknown Email"}
+            />
+          </div>
         ))}
       </div>
+
+      {isModalOpen && selectedProduct && (
+        <ListingModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          product={{
+            id: selectedProduct.id,
+            title: selectedProduct.name,
+            image: selectedProduct.image,
+            price: selectedProduct.price,
+            artist: user?.username || "Unknown Artist",
+            sellerEmail: user?.email || "Unknown Email",
+          }}
+        />
+      )}
     </div>
   );
 };

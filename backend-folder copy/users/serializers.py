@@ -2,6 +2,11 @@ from rest_framework import serializers
 from base.models import Users, ArtPiece, Location
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = ['user_id', 'username', 'email', 'first_name', 'last_name', ]  # Fields to be serialized
+
 
 # The serializer would define how the data from the signup request is converted into a User instance in the database. 
 class SignupSerializer(serializers.ModelSerializer): 

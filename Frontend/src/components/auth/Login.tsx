@@ -25,7 +25,7 @@ const Login = () => {
    
     try {
       const response = await axios.post<LoginResponse>(
-        "http://localhost:8000/api/login/",
+        "http://localhost:8000/base/users/login/",
         { email, password },
         { withCredentials: true }
       );

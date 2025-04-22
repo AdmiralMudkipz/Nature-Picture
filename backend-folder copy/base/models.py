@@ -177,8 +177,6 @@ class DjangoSession(models.Model):
 
 
 
-
-
 class PurchaseOrder(models.Model):
     purchase_order_id = models.AutoField(primary_key=True)
     date_purchased = models.DateField()

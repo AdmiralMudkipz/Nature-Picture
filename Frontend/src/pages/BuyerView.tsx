@@ -1,33 +1,133 @@
-import Navbar from "../components/Navbar";
+import React, { useState, useEffect } from "react";
 import BuyerInfo from "../components/BuyerInfo";
-import ProductCard from "../components/ProductCard";
-import leafImage from "../components/SellerProfileInfo/leafImage.jpg";
+import ListingWidget from "../components/modalstuff/ListingWidget";
+import ListingModal from "../components/modalstuff/Modal";
+import { useUser } from "../context/UserContext";
+import axios from "axios";
 
-// Sample product data (Replace with API data later)
-const products = [
-  { id: 1, name: "Leaf Painting", image: leafImage, price: 10.0 },
-  { id: 2, name: "Handmade Vase", image: leafImage, price: 25.0 },
-  { id: 3, name: "Wood Carving", image: leafImage, price: 40.0 },
-];
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  date: string;
+  sellerEmail: string;
+  artist: string;
+}
 
-const BuyerView = () => {
+const BuyerView: React.FC = () => {
+  const { user } = useUser();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sortMethod, setSortMethod] = useState<string>("newest");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchPurchases = async () => {
+      if (!user?.user_id) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/base/orders/${user.user_id}/purchases/`
+        );
+        const allProducts = response.data;
+
+        const formatted = allProducts.map((item: any) => ({
+          id: item.art_id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          date: item.date_purchased || "2025-04-01",
+          sellerEmail: item.seller_email,
+          artist: item.artist_name,
+        }));
+
+        setProducts(formatted);
+        console.log("PAST PURCHASES:", formatted);
+      } catch (err) {
+        console.error("Error fetching past purchases:", err);
+      }
+    };
+
+    fetchPurchases();
+  }, [user]);
+
+  useEffect(() => {
+    const sorted = [...products].sort((a, b) => {
+      switch (sortMethod) {
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        case "name-asc":
+          return a.name.localeCompare(b.name);
+        case "name-desc":
+          return b.name.localeCompare(a.name);
+        case "newest":
+        default:
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
+    setProducts(sorted);
+  }, [sortMethod]);
+
+  const handleWidgetClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
     <div className="seller-profile">
-      <div className="nav-bar">
-        <Navbar />
-      </div>
       <div className="buyer-content">
-        <BuyerInfo/>
+        <BuyerInfo />
       </div>
-      <div className="listing-header">
+
+      <div className="listing-header-container">
         <h1 style={{ fontSize: "1.5rem" }}>Past Purchases</h1>
-        <div style={{ marginBottom: "1rem" }}></div>
-        </div>
-      <div className="product-card-wrapper">
+        {/* Optional: You can add sorting dropdown here if you want */}
+      </div>
+
+      <div
+        className="product-card-wrapper"
+        style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
+      >
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <div
+            key={product.id}
+            onClick={() => handleWidgetClick(product)}
+            style={{ cursor: "pointer" }}
+          >
+            <ListingWidget
+              id={product.id.toString()}
+              image={product.image}
+              title={product.name}
+              artist={product.artist}
+              price={Number(product.price)}
+              sellerEmail={product.sellerEmail}
+            />
+          </div>
         ))}
       </div>
+
+      {isModalOpen && selectedProduct && (
+        <ListingModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          product={{
+            id: selectedProduct.id,
+            title: selectedProduct.name,
+            image: selectedProduct.image,
+            price: selectedProduct.price,
+            artist: selectedProduct.artist,
+            sellerEmail: selectedProduct.sellerEmail,
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -12,6 +12,8 @@ interface ModalProps {
   onClose: () => void;
   sellerEmail: string;
   id: string;
+  stock: number;
+  location: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -24,6 +26,8 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   sellerEmail,
   id,
+  stock,
+  location,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { addToCart } = useCart();
@@ -80,6 +84,8 @@ const Modal: React.FC<ModalProps> = ({
             <Price>${price.toFixed(2)}</Price>
             <TypeOfArt>Type: {typeOfArt}</TypeOfArt>
             <Bio>{bio}</Bio>
+            <Stock>In Stock: {stock}</Stock>
+            <Location>Location: {location}</Location>
           </Details>
           <AddToCartButton onClick={handleAddToCart}>Add to Cart</AddToCartButton>
         </RightSection>
@@ -193,6 +199,18 @@ const TypeOfArt = styled.p`
   font-size: 16px;
   color: #aaaaaa;
   margin-bottom: 20px;
+`;
+
+const Stock = styled.p`
+  font-size: 16px;
+  color: #cccccc;
+  margin-top: 10px;
+`;
+
+const Location = styled.p`
+  font-size: 16px;
+  color: #cccccc;
+  margin-top: 5px;
 `;
 
 const Bio = styled.p`

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import SellerInfo from "./SellerInfo";
 import ListingHeader from "./ListingHeader";
 import ProductCard from "../ProductCard";  // Imported ProductCard component
-import leafImage from "./leaf.jpg";
+
 
 // Sample product data (Replace with API data later)
 // const products = [

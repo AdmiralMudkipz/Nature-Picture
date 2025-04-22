@@ -5,6 +5,10 @@ import axios from "axios";
 import styled from "styled-components";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 
+
+// Home page is using this login.tsx file. other one needs to be deleted. 
+
+
 interface LoginResponse {
   username: string;
   user_id: number;
@@ -46,7 +50,7 @@ const Login = () => {
 
     try {
       const response = await axios.post<LoginResponse>(
-        "http://localhost:8000/base/users/login",   // switch out with not on localhost 
+        "http://localhost:8000/base/users/login/",   // switch out with not on localhost 
         { username, password },
         { withCredentials: true }  // Ensure session cookie is sent with the request
       );
@@ -63,7 +67,7 @@ const Login = () => {
         email,
       });
 
-      const redirectPath = location.state?.from || "/home";
+      const redirectPath = location.state?.from || "/Home";
       navigate(redirectPath);
       console.log("Login successful:", response.data);
     } catch (error: any) {
@@ -95,13 +99,14 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/register/",
+        "http://localhost:8000/base/users/signup/",
         {
           username: signUpData.username,
           email: signUpData.email,
           first_name: signUpData.first_name,
           last_name: signUpData.last_name,
-          password: signUpData.password
+          password: signUpData.password,
+          confirm_password: signUpData.confirm_password, // match password
         }
       );
       

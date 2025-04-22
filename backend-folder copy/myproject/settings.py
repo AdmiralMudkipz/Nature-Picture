@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "users",
     "artpiece",
     "cart",
+    "purchase_order",
     'rest_framework_simplejwt',
     'corsheaders',
 ]

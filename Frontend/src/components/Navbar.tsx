@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
 
   return (
     <NavbarContainer>

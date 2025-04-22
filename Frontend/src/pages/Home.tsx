@@ -6,10 +6,7 @@ import Modal from '../components/modalstuff/Modal';
 import SearchBar from '../components/SearchBar';
 import Sidebar from '../components/Sidebar';
 import { useCart } from '../context/CartContext';
-// Remove the hardcoded image imports
-// import leafPainting from '../assets/leaf painting.jpg';
-// import handmadeVase from '../assets/vase.jpg';
-// import woodCarving from '../assets/wood carving.jpg';
+
 
 interface Product {
   art_id: number;
@@ -20,7 +17,10 @@ interface Product {
   stock_amount: number;
   price?: number | null;
   location: number; 
-  user: number; 
+  user: number; // Assuming this is the user ID
+  first_name: string;
+  last_name: string;
+
 }
 
 const Home: React.FC = () => {
@@ -37,17 +37,19 @@ const Home: React.FC = () => {
       try {
         const response = await axios.get<Product[]>('http://127.0.0.1:8000/base/artpieces/');
         console.log('Fetched products:', response.data);
-  
+        console.log('Raw API response:', response.data);
         // Map the fetched products correctly
         const formattedProducts = response.data.map((item) => ({
-          id: String(item.art_id), // Ensure this is a string (important for React keys)
-          images: item.image ? [item.image] : [], // Use an empty array if no image is provided
+          id: String(item.art_id),
+          images: item.image ? [item.image] : [],
           title: item.name,
-          artist: `User ID: ${item.user}`, // Assuming user ID is used as the artist name
-          price: item.price !== null ? parseFloat(String(item.price)) : 0, // Parse price if it's not null
+          artist: `${item.user.first_name} ${item.user.last_name}`,
+          price: item.price !== null ? parseFloat(String(item.price)) : 0,
           typeOfArt: item.type_of_art,
-          bio: item.description || '', // Handle null descriptions
-          sellerEmail: `user_${item.user}@example.com`, // Placeholder email for the artist
+          bio: item.description || '',
+          sellerEmail: item.user.email || `user_${item.user.user_id}@example.com`,
+          location: ': ${item.location}',
+          stock: item.stock_amount
         }));
   
         setProducts(formattedProducts); // Set the formatted products to the state
@@ -130,6 +132,8 @@ const Home: React.FC = () => {
                 artist={product.artist}
                 price={product.price}
                 sellerEmail={product.sellerEmail}
+                typeOfArt={product.typeOfArt}
+                stock = {product.stock}
                 id={product.id}
               />
             </WidgetWrapper>
@@ -144,6 +148,8 @@ const Home: React.FC = () => {
           price={selectedProduct.price}
           typeOfArt={selectedProduct.typeOfArt}
           bio={selectedProduct.bio}
+          stock={selectedProduct.stock}
+          
           onClose={closeModal}
           onAddToCart={handleAddToCart}
         />

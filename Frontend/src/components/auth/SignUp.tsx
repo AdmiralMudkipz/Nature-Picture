@@ -25,7 +25,7 @@ const Signup: React.FC = () => {
     setError(null);
 
     try {
-      await axios.post("http://localhost:8000/api/signup/", formData); // Change this to your actual endpoint
+      await axios.post("http://localhost:8000/base/users/signup/", formData); // Change this to your actual endpoint
       navigate("/login"); // Redirect to login on success
     } catch (err: any) {
       if (err.response?.data?.non_field_errors) {

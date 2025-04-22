@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
 
 interface ModalProps {
   images: string[];
@@ -41,12 +41,20 @@ const Modal: React.FC<ModalProps> = ({
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <LeftSection>
           <ImageWrapper>
-            <img 
-              src={images[currentImageIndex]} 
+            <img
+              src={images[currentImageIndex]}
               alt={title}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Found';
+                {/* had to switch this because i was getting a bunch of console log errors abt not being able to find the image */}
+                target.src =
+      "data:image/svg+xml;base64," +
+      btoa(
+        `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="400" fill="#ccc"/>
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#333" font-size="24">Image Not Found</text>
+        </svg>`
+      );
               }}
             />
           </ImageWrapper>
@@ -169,7 +177,7 @@ const Artist = styled.h2`
 const Price = styled.p`
   font-size: 24px;
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
   margin-bottom: 15px;
 `;
 
@@ -186,7 +194,7 @@ const Bio = styled.p`
 `;
 
 const AddToCartButton = styled.button`
-  background:rgb(0, 0, 0);
+  background: rgb(0, 0, 0);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -197,7 +205,7 @@ const AddToCartButton = styled.button`
   margin-top: 20px;
 
   &:hover {
-    background:rgb(4, 90, 34);
+    background: rgb(4, 90, 34);
   }
 `;
 

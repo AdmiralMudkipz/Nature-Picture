@@ -22,7 +22,7 @@ function App() {
         <CartProvider>
           <Router>
             <div className="app">
-              <Navbar />
+              <Navbar /> {/* Navbar component shows up on every page */}
               <div className="page-content">
                 <Routes>
                   {/* Public route */}
@@ -43,14 +43,14 @@ function App() {
                   /> */}
                   <Route path="/cart" element={<Cart />} />
                   {/* Add dynamic Seller Profile route */}
-                  <Route
+                  {/* <Route
                     path="/seller/:sellerId"
                     element={
                       <ProtectedRoute isAuthenticated={isAuthenticated}>
                         <SellerProfile />
                       </ProtectedRoute>
                     }
-                  />
+                  /> */}
                   {/* Seller profile route */}
                   <Route
                     path="/seller-profile"
@@ -60,7 +60,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  {/* Buyer profile route */}
+                  {/* Buyer profile route fix later */}
                   <Route
                     path="/buyer-profile"
                     element={
@@ -70,9 +70,11 @@ function App() {
                     }
                   />
                   <Route path="/sign-up" element={<SignUp />} />
+                   {/* widget test route for jenna */}
                   {/* <Route path="/widget-test" element={<WidgetTest />} /> */}
                   <Route path="*" element={<div>404 - Page Not Found</div>} />
-                  {/* widget test route for jenna */}
+                
+
                 </Routes>
               </div>
             </div>

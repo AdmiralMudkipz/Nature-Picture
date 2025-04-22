@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import styled from "styled-components";
-import ListingWidget from "./modalstuff/ListingWidget";
+import ListingWidget from "../modalstuff/ListingWidget";
 
 type Product = {
   id: number;
