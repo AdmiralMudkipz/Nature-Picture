@@ -1,3 +1,5 @@
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
+from rest_framework.filters import SearchFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,13 +7,40 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import RetrieveAPIView,ListAPIView, DestroyAPIView
 from django.shortcuts import get_object_or_404
 from base.models import Location, ArtPiece, Users  
-from .serializers import ArtPieceSerializer # Import the serializer
+from .serializers import ArtPieceSerializer, LocationSerializer # Import the serializer
+import django_filters
+
+# retrieve all locations in the database
+class AllLocationsAPIView(ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+# 
+class ArtPieceFilter(FilterSet):
+    type_of_art = django_filters.BaseInFilter(field_name="type_of_art", lookup_expr="in")
+
+    class Meta:
+        model = ArtPiece
+        fields = ['type_of_art', 'location']
+
+
+# uses Django REST Framework's ListAPIView which is made for listing multiple objects
+# this is used to get a list of all art pieces in the database
+# it will return a list of all art pieces in the database & can filter if needed 
+class ArtPieceListAPIView(ListAPIView):
+    queryset = ArtPiece.objects.all()
+    serializer_class = ArtPieceSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = ArtPieceFilter
+    search_fields = ['name', 'description']
+
 
 # uses Django REST Framework's RetrieveAPIView which is made for retrieving a single object 
 class ArtPieceDetailAPIView(RetrieveAPIView):
     queryset = ArtPiece.objects.all()
     serializer_class = ArtPieceSerializer
     lookup_field = 'art_id'
+    
     
 # retrieve products for a specific user 
 class SellerArtPieceListAPIView(ListAPIView):
@@ -22,13 +51,6 @@ class SellerArtPieceListAPIView(ListAPIView):
         return ArtPiece.objects.filter(user_id=seller_id)  # filter by the user_id in the ArtPiece model
 
 
-
-# uses Django REST Framework's ListAPIView which is made for listing multiple objects
-# this is used to get a list of all art pieces in the database
-# it will return a list of all art pieces in the database
-class ArtPieceListAPIView(ListAPIView):
-    queryset = ArtPiece.objects.all()
-    serializer_class = ArtPieceSerializer
     
 
 # uses Django REST Framework's DestroyAPIView which is made for deleting a single object. 

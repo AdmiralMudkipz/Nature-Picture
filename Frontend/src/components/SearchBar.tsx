@@ -10,10 +10,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
-    if (query.trim()) {
-      onSearch(query);
-      setQuery('');
-    }
+    onSearch(query); // pass query whether it's empty or not
+    // DON'T reset query here
   };
 
   const styles: Record<string, CSSProperties> = {

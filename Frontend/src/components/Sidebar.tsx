@@ -1,35 +1,78 @@
-import React, { useState } from 'react';
-import { FaFilter, FaMugHot, FaCamera, FaPrint, FaCube, FaPalette, FaEllipsisH } from 'react-icons/fa';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import {
+  FaFilter,
+  FaMugHot,
+  FaCamera,
+  FaPrint,
+  FaCube,
+  FaPalette,
+  FaEllipsisH,
+} from "react-icons/fa";
+import styled from "styled-components";
+import axios from "axios"; // Import axios for fetching data
 
-const categories = [
-  { name: 'Photography', icon: <FaCamera /> },
-  { name: 'Print', icon: <FaPrint /> },
-  { name: 'Sculpture', icon: <FaCube /> },
-  { name: 'Painting', icon: <FaPalette /> },
-  { name: 'Ceramics', icon: <FaMugHot /> },
-  { name: 'Other', icon: <FaEllipsisH /> },
+interface Category {
+  name: string;
+  icon: React.ReactNode;
+}
+
+const categories: Category[] = [
+  { name: "Photography", icon: <FaCamera /> },
+  { name: "Print", icon: <FaPrint /> },
+  { name: "Sculpture", icon: <FaCube /> },
+  { name: "Painting", icon: <FaPalette /> },
+  { name: "Ceramics", icon: <FaMugHot /> },
+  { name: "Other", icon: <FaEllipsisH /> },
 ];
 
-const counties = [
-  'Atlantic', 'Bergen', 'Burlington', 'Camden', 'Cape May', 'Cumberland', 'Essex',
-  'Gloucester', 'Hudson', 'Hunterdon', 'Mercer', 'Middlesex', 'Monmouth', 'Morris',
-  'Ocean', 'Passaic', 'Salem', 'Somerset', 'Sussex', 'Union', 'Warren',
-];
+interface Location {
+  location_id: number;
+  county: string;
+  state: string;
+}
 
 interface SidebarProps {
   onCategoryChange: (selectedCategories: string[]) => void;
-  onCountyChange: (selectedCounty: string) => void;
+  onCountyChange: (selectedCountyId: string) => void; // Expecting a string ID now
   onSidebarToggle?: (isOpen: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onCategoryChange, onCountyChange, onSidebarToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  onCategoryChange,
+  onCountyChange,
+  onSidebarToggle,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedCounty, setSelectedCounty] = useState('');
+  const [selectedCountyId, setSelectedCountyId] = useState("");
+  const [locations, setLocations] = useState<Location[]>([]); // Use 'locations'
+  const [loadingLocations, setLoadingLocations] = useState(true); // Use 'loadingLocations'
+  const [locationError, setLocationError] = useState<string | null>(null); // Use 'locationError'
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get<Location[]>(
+          "http://127.0.0.1:8000/base/artpieces/locations/"
+        );
+        setLocations(response.data);
+        setLoadingLocations(false);
+      } catch (error: any) {
+        console.error("Error fetching locations:", error);
+        setLocationError("Failed to fetch locations.");
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
+
+ 
+
 
   const toggleSidebar = () => {
     const newIsOpen = !isOpen;
+    console.log("Sidebar state changing to:", newIsOpen);
     setIsOpen(newIsOpen);
     onSidebarToggle?.(newIsOpen);
   };
@@ -43,9 +86,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCategoryChange, onCountyChange, onS
   };
 
   const handleCountyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const county = event.target.value;
-    setSelectedCounty(county);
-    onCountyChange(county);
+    const countyId = event.target.value;
+    setSelectedCountyId(countyId);
+    onCountyChange(countyId); // Pass the ID
+  };
+
+  const handleCategoryChange = (categories: string[]) => {
+    const categoryFilter = categories.join(','); // e.g., "Print,Photography"
+    fetchArtPieces(categoryFilter, selectedCounty); // or however you're fetching
   };
 
   return (
@@ -53,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCategoryChange, onCountyChange, onS
       <FilterButton isOpen={isOpen} onClick={toggleSidebar}>
         <FaFilter />
       </FilterButton>
-      
+
       <SidebarContent isOpen={isOpen}>
         <Title>Filters</Title>
         <CategoryList>
@@ -71,24 +119,39 @@ const Sidebar: React.FC<SidebarProps> = ({ onCategoryChange, onCountyChange, onS
             </CategoryItem>
           ))}
         </CategoryList>
-        
+
         <DropdownSection>
-          <Label htmlFor="county">Select County:</Label>
-          <Select
-            id="county"
-            value={selectedCounty}
-            onChange={handleCountyChange}
-          >
-            <option value="">Select a county...</option>
-            {counties.map((county) => (
-              <option key={county} value={county}>{county}</option>
-            ))}
-          </Select>
+          <Label htmlFor="county">Select Location:</Label>
+          {loadingLocations ? (
+            <div>Loading locations...</div>
+          ) : locationError ? (
+            <div>Error loading locations: {locationError}</div>
+          ) : (
+            <Select
+              id="county"
+              value={selectedCountyId}
+              onChange={handleCountyChange}
+            >
+              <option value="">Select a location...</option>
+              {locations.map((location) => (
+                <option
+                  key={location.location_id}
+                  value={String(location.location_id)}
+                >
+                  {location.county}, {location.state}
+                </option>
+              ))}
+            </Select>
+          )}
         </DropdownSection>
       </SidebarContent>
     </SidebarContainer>
   );
 };
+
+// Styled components remain the same
+
+export default Sidebar;
 
 const SidebarContainer = styled.div`
   position: relative;
@@ -97,7 +160,7 @@ const SidebarContainer = styled.div`
 const FilterButton = styled.button<{ isOpen: boolean }>`
   position: fixed;
   top: 100px;
-  left: ${({ isOpen }) => (isOpen ? '300px' : '20px')};
+  left: ${({ isOpen }) => (isOpen ? "300px" : "20px")};
   z-index: 1001;
   padding: 12px;
   font-size: 24px;
@@ -124,7 +187,7 @@ const SidebarContent = styled.div<{ isOpen: boolean }>`
   background: linear-gradient(to right, #1c1c1c, #2c2c2c);
   color: white;
   padding: 80px 30px 30px;
-  transform: translateX(${({ isOpen }) => (isOpen ? '0' : '-100%')});
+  transform: translateX(${({ isOpen }) => (isOpen ? "0" : "-100%")});
   transition: transform 0.3s ease-in-out;
   overflow-y: auto;
   z-index: 1000;
@@ -187,12 +250,10 @@ const Select = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #4CAF50;
+    border-color: #4caf50;
   }
 
   option {
     background: #2c2c2c;
   }
 `;
-
-export default Sidebar;
