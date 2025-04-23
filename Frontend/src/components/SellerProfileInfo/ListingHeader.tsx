@@ -4,7 +4,7 @@ import AddListingModal from "./AddListingModal"; // Assuming this is your modal 
 import { SortDropdown } from "./SortDropdown"; // Assuming this is your sort dropdown component
 
 const sortOptions = [
-  { label: "Newest", value: "newest" },
+  { label: "Newest", value: "newest" }, // Need to delete this
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
   { label: "Name: A to Z", value: "name-asc" },
@@ -15,7 +15,59 @@ interface ListingHeaderProps {
   onSortChange?: (value: string) => void;
   showSort?: boolean;
   currentSort?: string;
+  showAddButton?: boolean; // ✅ Add this
 }
+
+
+
+const ListingHeader: React.FC<ListingHeaderProps> = ({
+  onSortChange = () => {},
+  showSort = true,
+  currentSort = "",
+  showAddButton = false, 
+}) => {
+  const [isAddOpen, setIsAddOpen] = useState(false); // State for modal visibility
+
+  const handleAddListingClick = () => {
+    setIsAddOpen(true); // Open modal when "Add Listing" button is clicked
+  };
+
+  const handleModalClose = () => {
+    setIsAddOpen(false); // Close modal when closing
+  };
+
+  return (
+    <ListingHeaderWrapper>
+      <HeaderLeft>
+        <Title>Listings</Title>
+      </HeaderLeft>
+
+      <HeaderRight>
+        {showSort && (
+          <SortWrapper>
+            <SortDropdown
+              options={sortOptions}
+              onSortChange={onSortChange}
+              defaultValue={currentSort}
+              className="w-48"
+            />
+          </SortWrapper>
+        )}
+
+        {showAddButton && (
+          <Button onClick={handleAddListingClick}>Add Listing</Button>
+        )}
+      </HeaderRight>
+
+      {showAddButton && (
+        <AddListingModal isOpen={isAddOpen} handleClose={handleModalClose}>
+          <h2>Add New Art Listing</h2>
+          {/* Your modal form or content here */}
+        </AddListingModal>
+      )}
+    </ListingHeaderWrapper>
+  );
+};
 
 const ListingHeaderWrapper = styled.div`
   display: flex;
@@ -33,7 +85,7 @@ const Title = styled.h1`
   margin-right: 20px;
   font-size: 24px;
   font-weight: bold;
-  color:rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
 `;
 
 const HeaderRight = styled.div`
@@ -59,50 +111,5 @@ const Button = styled.button`
   }
 `;
 
-const ListingHeader: React.FC<ListingHeaderProps> = ({
-  onSortChange = () => {},
-  showSort = true,
-  currentSort = "",
-}) => {
-  const [isAddOpen, setIsAddOpen] = useState(false); // State for modal visibility
-
-  const handleAddListingClick = () => {
-    setIsAddOpen(true); // Open modal when "Add Listing" button is clicked
-  };
-
-  const handleModalClose = () => {
-    setIsAddOpen(false); // Close modal when closing
-  };
-
-  return (
-    <ListingHeaderWrapper>
-      <HeaderLeft>
-        <Title>Listings</Title>
-      </HeaderLeft>
-
-      <HeaderRight>
-        {showSort && (
-          <SortWrapper>
-            <SortDropdown
-              options={sortOptions}
-              onSortChange={onSortChange}
-              defaultValue={currentSort}
-              className="w-48" // Optionally, manage width here if needed
-            />
-          </SortWrapper>
-        )}
-
-        {/* Add Listing Button */}
-        <Button onClick={handleAddListingClick}>Add Listing</Button>
-      </HeaderRight>
-
-      {/* Add Listing Modal */}
-      <AddListingModal isOpen={isAddOpen} handleClose={handleModalClose}>
-        <h2>Add New Art Listing</h2>
-        {/* The modal content you have already in AddListingModal will be rendered here */}
-      </AddListingModal>
-    </ListingHeaderWrapper>
-  );
-};
 
 export default ListingHeader;

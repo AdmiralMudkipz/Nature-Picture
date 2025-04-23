@@ -5,6 +5,7 @@ import ListingWidget from "../components/modalstuff/ListingWidget";
 import ListingModal from "../components/modalstuff/Modal"; // assuming this is your modal
 import { useUser } from "../context/UserContext";
 import axios from "axios";
+import styled from 'styled-components';
 
 // This is the seller profile page that is being used
 
@@ -14,6 +15,7 @@ interface Product {
   price: number;
   image: string;
   date: string;
+  stock_amount: number;
 }
 
 const SellerPage: React.FC = () => {
@@ -40,8 +42,9 @@ const SellerPage: React.FC = () => {
           id: item.art_id,
           name: item.name,
           image: item.image,
-          price: item.price,
+          price: item.price !== null ? parseFloat(String(item.price)) : 0,
           date: item.date_created || "2025-04-01",
+          stock_amount: item.stock_amount,
         }));
 
         setProducts(formatted);
@@ -84,6 +87,7 @@ const SellerPage: React.FC = () => {
   };
 
   return (
+    <SellerContainer>
     <div className="seller-profile">
       <div className="seller-content">
         <SellerInfo />
@@ -94,6 +98,7 @@ const SellerPage: React.FC = () => {
           onSortChange={setSortMethod}
           currentSort={sortMethod}
           showSort={true}
+          showAddButton={true} 
         />
       </div>
 
@@ -101,6 +106,7 @@ const SellerPage: React.FC = () => {
         className="product-card-wrapper"
         style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
       >
+        <ProductGrid>
         {products.map((product) => (
           <div
             key={product.id}
@@ -114,9 +120,12 @@ const SellerPage: React.FC = () => {
               artist={user?.username || "Unknown Artist"}
               price={Number(product.price)} // Ensure price is a number
               sellerEmail={user?.email || "Unknown Email"}
+              soldOut={product.stock_amount === 0}
             />
           </div>
+      
         ))}
+        </ProductGrid>
       </div>
 
       {isModalOpen && selectedProduct && (
@@ -134,7 +143,21 @@ const SellerPage: React.FC = () => {
         />
       )}
     </div>
+    </SellerContainer>
   );
 };
 
+const SellerContainer = styled.div`
+  padding: 2rem;
+  background-color: #1c1c1c;
+  min-height: 100vh;
+`;
+
+const ProductGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center; /* Even spacing and center-aligned */
+  margin-top: 2rem;
+`;
 export default SellerPage;

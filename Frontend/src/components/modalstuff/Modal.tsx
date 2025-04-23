@@ -8,6 +8,7 @@ interface ModalProps {
   price: number;
   typeOfArt: string;
   bio: string;
+  stock: number;
   onClose: () => void;
   onAddToCart: () => void;
 }
@@ -19,6 +20,7 @@ const Modal: React.FC<ModalProps> = ({
   price,
   typeOfArt,
   bio,
+  stock,
   onClose,
   onAddToCart,
 }) => {
@@ -46,15 +48,17 @@ const Modal: React.FC<ModalProps> = ({
               alt={title}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                {/* had to switch this because i was getting a bunch of console log errors abt not being able to find the image */}
+                {
+                  /* had to switch this because i was getting a bunch of console log errors abt not being able to find the image */
+                }
                 target.src =
-      "data:image/svg+xml;base64," +
-      btoa(
-        `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+                  "data:image/svg+xml;base64," +
+                  btoa(
+                    `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
           <rect width="600" height="400" fill="#ccc"/>
           <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#333" font-size="24">Image Not Found</text>
         </svg>`
-      );
+                  );
               }}
             />
           </ImageWrapper>
@@ -72,6 +76,7 @@ const Modal: React.FC<ModalProps> = ({
             <Price>${price.toFixed(2)}</Price>
             <TypeOfArt>Type: {typeOfArt}</TypeOfArt>
             <Bio>{bio}</Bio>
+            <Stock>Stock: {stock}</Stock>
           </Details>
           <AddToCartButton onClick={onAddToCart}>Add to Cart</AddToCartButton>
         </RightSection>
@@ -191,6 +196,12 @@ const Bio = styled.p`
   font-size: 16px;
   line-height: 1.6;
   color: #dddddd;
+`;
+
+const Stock = styled.p`
+  font-size: 16px;
+  color: #aaaaaa;
+  margin-top: 20px;
 `;
 
 const AddToCartButton = styled.button`

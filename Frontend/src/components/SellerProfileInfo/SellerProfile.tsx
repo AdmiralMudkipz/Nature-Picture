@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import SellerInfo from "./SellerInfo";
 import ListingHeader from "./ListingHeader";
-import ProductCard from "../ProductCard";  // Imported ProductCard component
-
+import ProductCard from "../ProductCard"; // Imported ProductCard component
 
 // Sample product data (Replace with API data later)
 // const products = [
@@ -14,16 +13,14 @@ import ProductCard from "../ProductCard";  // Imported ProductCard component
 const SellerProfile: React.FC = () => {
   return (
     <SellerProfileWrapper>
-      <HeaderContainer>
-        
-      </HeaderContainer>
+      <HeaderContainer></HeaderContainer>
 
       <SellerContent>
         <SellerInfo />
       </SellerContent>
-
+      
       <ListingHeaderContainer>
-        <ListingHeader />
+        <ListingHeader showAddButton={true} />
       </ListingHeaderContainer>
 
       <ProductCardWrapper>
@@ -85,4 +82,3 @@ const ProductImage = styled.img`
   width: 100%;
   height: auto;
 `;
-

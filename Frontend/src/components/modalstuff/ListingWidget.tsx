@@ -9,13 +9,15 @@ interface WidgetProps {
   price: number;
   sellerEmail: string;
   id: string;
+  soldOut?: boolean;
 }
 
-const Widget: React.FC<WidgetProps> = ({ image, title, artist, price, sellerEmail, id }) => {
+const Widget: React.FC<WidgetProps> = ({ image, title, artist, price, sellerEmail, id, soldOut }) => {
   return (
     <WidgetContainer>
       <ImageWrapper>
         <Image src={image} alt={title} />
+        {soldOut && <SoldOutBadge>SOLD OUT</SoldOutBadge>}
         <GradientOverlay />
       </ImageWrapper>
       <Overlay>
@@ -131,5 +133,20 @@ const Price = styled.p`
   color: #4CAF50;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `;
+
+const SoldOutBadge = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(255, 0, 0, 0.85);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 6px;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+`;
+
 
 export default Widget;

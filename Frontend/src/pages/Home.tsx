@@ -21,6 +21,7 @@ interface Product {
   first_name: string;
   last_name: string;
 
+
 }
 
 const Home: React.FC = () => {
@@ -87,6 +88,10 @@ const Home: React.FC = () => {
   };
 
   const handleAddToCart = () => {
+    if (selectedProduct.stock === 0) {
+      alert('This item is sold out and cannot be added to the cart.');
+      return;
+    }
     if (selectedProduct) {
       addToCart({
         id: selectedProduct.id,
@@ -135,6 +140,7 @@ const Home: React.FC = () => {
                 typeOfArt={product.typeOfArt}
                 stock = {product.stock}
                 id={product.id}
+                soldOut={product.stock === 0} // check if the product is sold out
               />
             </WidgetWrapper>
           ))}
@@ -149,7 +155,7 @@ const Home: React.FC = () => {
           typeOfArt={selectedProduct.typeOfArt}
           bio={selectedProduct.bio}
           stock={selectedProduct.stock}
-          
+        
           onClose={closeModal}
           onAddToCart={handleAddToCart}
         />
