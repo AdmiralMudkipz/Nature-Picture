@@ -95,6 +95,7 @@ const SellerPage: React.FC = () => {
 
       <div className="listing-header-container">
         <ListingHeader
+          title= "My Listings"
           onSortChange={setSortMethod}
           currentSort={sortMethod}
           showSort={true}

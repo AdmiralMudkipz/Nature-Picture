@@ -5,6 +5,7 @@ import Widget from "../components/modalstuff/ListingWidget";
 import Modal from "../components/modalstuff/Modal";
 import { useUser } from "../context/UserContext";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader";
+import SellerInfo from "../components/SellerProfileInfo/SellerInfo";
 
 interface Product {
   id: string;
@@ -96,14 +97,18 @@ const BuyerView: React.FC = () => {
 
   return (
     <BuyerContainer>
-      <Header>Your Past Purchases</Header>
+      <div className="buyer-content">
+        <SellerInfo />
+      </div>
+      
 
       <div className="listing-header-container">
         <ListingHeader
+          title="Past Purchases"
           onSortChange={(value: string) => setSortMethod(value)}
           currentSort={sortMethod}
           showSort={true}
-          showAddButton={false} // ✅ make sure it's false for buyers
+          showAddButton={false} 
         />
       </div>
 
@@ -113,7 +118,7 @@ const BuyerView: React.FC = () => {
             <Widget
               image={product.images[0] || ""}
               title={product.title}
-              artist={user?.username || "Unknown Artist"}
+              artist={product.artist}
               price={product.price}
               id={product.id}
               typeOfArt={product.typeOfArt}

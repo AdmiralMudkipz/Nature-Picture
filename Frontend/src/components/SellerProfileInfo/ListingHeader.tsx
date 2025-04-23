@@ -12,6 +12,7 @@ const sortOptions = [
 ];
 
 interface ListingHeaderProps {
+  title?: string;
   onSortChange?: (value: string) => void;
   showSort?: boolean;
   currentSort?: string;
@@ -21,6 +22,7 @@ interface ListingHeaderProps {
 
 
 const ListingHeader: React.FC<ListingHeaderProps> = ({
+  title,
   onSortChange = () => {},
   showSort = true,
   currentSort = "",
@@ -39,7 +41,7 @@ const ListingHeader: React.FC<ListingHeaderProps> = ({
   return (
     <ListingHeaderWrapper>
       <HeaderLeft>
-        <Title>Listings</Title>
+        <Title>{title}</Title>
       </HeaderLeft>
 
       <HeaderRight>
