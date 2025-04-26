@@ -46,21 +46,37 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/base/artpieces/");
-        console.log("Fetched products:", response.data);
-
-        const formattedProducts = response.data.map((item: any) => ({
-          id: String(item.art_id),
-          images: item.image ? [item.image] : [],
-          title: item.name,
-          artist: `${item.user.first_name} ${item.user.last_name}`,
-          price: item.price !== null ? parseFloat(String(item.price)) : 0,
-          typeOfArt: item.type_of_art,
-          bio: item.description || "",
-          sellerEmail: item.user?.email || `user_${item.user}@example.com`,
-          location: String(item.location.location_id),
-          stock: item.stock_amount,
-        }));
-
+        console.log("Raw API response:", response.data);
+        
+        if (response.data.length > 0) {
+          // Debug log first item
+          console.log("First item image:", response.data[0].image);
+          console.log("First item image_url:", response.data[0].image_url);
+        }
+  
+        const formattedProducts = response.data.map((item: any) => {
+          // Debug log each item's image fields
+          console.log(`Item ${item.art_id} image fields:`, {
+            image: item.image,
+            image_url: item.image_url
+          });
+          
+          return {
+            id: String(item.art_id),
+            // Try image_url first, then fall back to image
+            images: item.image_url ? [item.image_url] : 
+                   (item.image ? [item.image] : []),
+            title: item.name,
+            artist: `${item.user.first_name} ${item.user.last_name}`,
+            price: item.price !== null ? parseFloat(String(item.price)) : 0,
+            typeOfArt: item.type_of_art,
+            bio: item.description || "",
+            sellerEmail: item.user?.email || `user_${item.user_id}@example.com`,
+            location: String(item.location.location_id),
+            stock: item.stock_amount,
+          };
+        });
+  
         setProducts(formattedProducts);
         setLoading(false);
       } catch (error: any) {
@@ -69,7 +85,7 @@ const Home: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     fetchProducts();
   }, []);
 

@@ -15,21 +15,24 @@ class Location(models.Model):
         managed = False  # Let Django know not to manage this table, because it exists in the DB already
 
 
+# In base/models.py
+
 class ArtPiece(models.Model):
     art_id = models.AutoField(primary_key=True)
     type_of_art = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    image = models.CharField(max_length=255, blank=True, null=True)
+    image = models.ImageField(upload_to='art_pieces/', blank=True, null=True)
     stock_amount = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-
+    
+    # Foreign keys
     location = models.ForeignKey(Location, on_delete=models.RESTRICT, db_column='location_id')
     user = models.ForeignKey('Users', models.DO_NOTHING, db_column='user_id')
-
+    
     class Meta:
         db_table = 'art_piece'
-        managed = False # tells Django not to create, alter, or delete tables 
+        managed = False
         
 
 

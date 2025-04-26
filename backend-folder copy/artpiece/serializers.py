@@ -13,6 +13,8 @@ class LocationSerializer(serializers.ModelSerializer):
 class ArtPieceSerializer(serializers.ModelSerializer):
     location = LocationSerializer(read_only=True)  # show location details when viewing
     user = UserSerializer(read_only=True)  # show user details when viewing
+    image = serializers.ImageField(max_length=None, use_url=True, required=False)
+    image_url = serializers.SerializerMethodField()
     
     # these fields are for creating/updating the ArtPiece
     user_id = serializers.PrimaryKeyRelatedField(
@@ -34,6 +36,7 @@ class ArtPieceSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'image',
+            'image_url',
             'stock_amount',
             'price',
             'location',
@@ -41,7 +44,15 @@ class ArtPieceSerializer(serializers.ModelSerializer):
             'user_id',
             'location_id', 
         ]
-
-
-
-
+        
+        # Specify fields that shouldn't be required for creation
+        extra_kwargs = {
+            'image': {'required': False},
+        }
+    def get_image_url(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            # Add print statement to debug
+            url = obj.image.url
+            print(f"Generated image URL: {url}")
+            return url
+        return None

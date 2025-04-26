@@ -48,9 +48,7 @@ const Modal: React.FC<ModalProps> = ({
               alt={title}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                {
-                  /* had to switch this because i was getting a bunch of console log errors abt not being able to find the image */
-                }
+                console.log(`Failed to load image: ${images[currentImageIndex]}`);
                 target.src =
                   "data:image/svg+xml;base64," +
                   btoa(

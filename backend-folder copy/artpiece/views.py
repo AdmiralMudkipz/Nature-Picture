@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from base.models import Location, ArtPiece, Users  
 from .serializers import ArtPieceSerializer, LocationSerializer # Import the serializer
 import django_filters
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # retrieve all locations in the database
 class AllLocationsAPIView(ListAPIView):
@@ -27,13 +28,19 @@ class ArtPieceFilter(FilterSet):
 # uses Django REST Framework's ListAPIView which is made for listing multiple objects
 # this is used to get a list of all art pieces in the database
 # it will return a list of all art pieces in the database & can filter if needed 
-class ArtPieceListAPIView(ListAPIView):
-    queryset = ArtPiece.objects.all()
-    serializer_class = ArtPieceSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = ArtPieceFilter
-    search_fields = ['name', 'description']
-
+class ArtPieceListAPIView(APIView):
+    def get(self, request):
+        art_pieces = ArtPiece.objects.all()
+        serializer = ArtPieceSerializer(art_pieces, many=True)
+        data = serializer.data
+        
+        # Debug print
+        for piece in data:
+            print(f"Art piece: {piece['name']}")
+            print(f"  image: {piece.get('image')}")
+            print(f"  image_url: {piece.get('image_url')}")
+        
+        return Response(data)
 
 # uses Django REST Framework's RetrieveAPIView which is made for retrieving a single object 
 class ArtPieceDetailAPIView(RetrieveAPIView):
@@ -62,55 +69,84 @@ class ArtPieceDeleteAPIView(DestroyAPIView):
     
 
 
-# Handles the creation of a new art piece.
+from rest_framework.parsers import MultiPartParser, FormParser
+
 class ArtPieceCreateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    
     def post(self, request):
-        # authentication Check
-        user_id = request.session.get('user_id')
-        if not user_id:
-            return Response({'error': 'User not authenticated'}, 
-                          status=status.HTTP_401_UNAUTHORIZED)
-
-        # get User
-        user = get_object_or_404(Users, pk=user_id)
-        
-        # validate Location Data
-        county = request.data.get('county')
-        state = request.data.get('state')
-        
-        if not all([county, state]):
-            return Response({'error': 'Both county and state are required'},
-                          status=status.HTTP_400_BAD_REQUEST)
-
-        # handle Location
         try:
-            location, _ = Location.objects.get_or_create(
-                county=county,
-                state=state,
-                defaults={'county': county, 'state': state}
-            )
-        except Exception as e:
-            return Response({'error': f'Location error: {str(e)}'},
-                          status=status.HTTP_400_BAD_REQUEST)
+            # Authentication check
+            user_id = request.session.get('user_id')
+            if not user_id:
+                return Response({'error': 'User not authenticated'}, 
+                            status=status.HTTP_401_UNAUTHORIZED)
+            
+            # Get User
+            user = get_object_or_404(Users, pk=user_id)
+            
+            # Validate Location Data
+            county = request.data.get('county')
+            state = request.data.get('state')
+            
+            if not all([county, state]):
+                return Response({'error': 'Both county and state are required'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # prepare Art Data with user_id included
-        art_data = request.data.copy()
-        art_data['location_id'] = location.location_id
-        art_data['user_id'] = user.user_id  # This is the critical fix
+            # Handle Location
+            try:
+                location, _ = Location.objects.get_or_create(
+                    county=county,
+                    state=state,
+                    defaults={'county': county, 'state': state}
+                )
+            except Exception as e:
+                print(f"Location error: {str(e)}")
+                return Response({'error': f'Location error: {str(e)}'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # serializer handling
-        serializer = ArtPieceSerializer(data=art_data)
-        if not serializer.is_valid():
-            return Response(serializer.errors,
-                         status=status.HTTP_400_BAD_REQUEST)
+            # Prepare Art Data with user_id included
+            art_data = {
+                'name': request.data.get('name'),
+                'description': request.data.get('description'),
+                'type_of_art': request.data.get('type_of_art'),
+                'stock_amount': request.data.get('stock_amount', 0),
+                'price': request.data.get('price'),
+                'location_id': location.location_id,
+                'user_id': user.user_id,
+            }
+            
+            # Create serializer for basic data
+            serializer = ArtPieceSerializer(data=art_data)
+            if not serializer.is_valid():
+                print("Serializer errors:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # save Art Piece
-        try:
+            # Save the art piece first
             art_piece = serializer.save()
-            return Response(ArtPieceSerializer(art_piece).data,
-                         status=status.HTTP_201_CREATED)
+            
+            # Then handle image upload separately
+            if 'image' in request.FILES:
+                try:
+                    # Get the image file
+                    image_file = request.FILES['image']
+                    
+                    # Update the art piece with the image
+                    art_piece.image = image_file
+                    art_piece.save()
+                    
+                    print(f"Image saved successfully: {art_piece.image.url}")
+                except Exception as e:
+                    print(f"Image save error: {str(e)}")
+                    # Continue even if image upload fails
+            else:
+                print("No image file found in request")
+            
+            # Return the full art piece data
+            return Response(ArtPieceSerializer(art_piece).data, status=status.HTTP_201_CREATED)
+            
         except Exception as e:
-            return Response({'error': f'Save failed: {str(e)}'},
-                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+            import traceback
+            print(f"Unexpected error: {str(e)}")
+            print(traceback.format_exc())
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
