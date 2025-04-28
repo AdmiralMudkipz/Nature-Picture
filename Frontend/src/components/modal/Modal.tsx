@@ -14,6 +14,7 @@ interface ModalProps {
   id: string;
   stock: number;
   location: string;
+  showAddToCart?: boolean; // added this prop to control the button visibility
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -28,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({
   id,
   stock,
   location,
+  showAddToCart = true,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { addToCart } = useCart();
@@ -87,7 +89,12 @@ const Modal: React.FC<ModalProps> = ({
             <Stock>In Stock: {stock}</Stock>
             <Location>Location: {location}</Location>
           </Details>
-          <AddToCartButton onClick={handleAddToCart}>Add to Cart</AddToCartButton>
+          {/* Only render the Add to Cart button if showAddToCart is true */}
+          {showAddToCart && (
+            <AddToCartButton onClick={handleAddToCart}>
+              Add to Cart
+            </AddToCartButton>
+          )}
         </RightSection>
       </ModalContent>
     </ModalBackdrop>

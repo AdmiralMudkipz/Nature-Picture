@@ -84,7 +84,7 @@ const Home: React.FC = () => {
       const isSearchMatch =
         !searchQuery ||
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // product.artist.toLowerCase().includes(searchQuery.toLowerCase()) || backend only accounts for title & description
         product.typeOfArt.toLowerCase().includes(searchQuery.toLowerCase());
   
       return isCategoryMatch && isCountyMatch && isSearchMatch;

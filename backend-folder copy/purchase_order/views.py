@@ -27,6 +27,5 @@ class PurchaseOrderListAPIView(ListAPIView):
     
     
 # create a new purchase order 
-# class PurchaseOrderCreateAPIView(CreateAPIView):
-#     queryset = PurchaseOrderSerializer.objects.all()
-#     serializer_class = PurchaseOrderSerializer
+class PurchaseOrderCreateAPIView(CreateAPIView):
+    serializer_class = PurchaseOrderSerializer

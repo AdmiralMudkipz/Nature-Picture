@@ -131,17 +131,20 @@ const SellerPage: React.FC = () => {
 
       {isModalOpen && selectedProduct && (
         <ListingModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          product={{
-            id: selectedProduct.id,
-            title: selectedProduct.name,
-            image: selectedProduct.image,
-            price: selectedProduct.price,
-            artist: user?.username || "Unknown Artist",
-            sellerEmail: user?.email || "Unknown Email",
-          }}
-        />
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        images={[selectedProduct.image]}  
+        title={selectedProduct.name}
+        artist={user?.username || "Unknown Artist"}
+        price={selectedProduct.price}
+        sellerEmail={user?.email || "Unknown Email"}
+        id={selectedProduct.id.toString()}
+        typeOfArt={"Art"}  
+        bio={""}  
+        stock={selectedProduct.stock_amount || 0} 
+        location={""}  
+        showAddToCart={false} // don't show add to cart button
+      />
       )}
     </div>
     </SellerContainer>
