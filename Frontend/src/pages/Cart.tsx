@@ -1,87 +1,67 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Cart.tsx
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useCart } from '../context/CartContext';
+import type { CartItem } from '../context/CartContext';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { FaTrash } from 'react-icons/fa';
-import emailjs from '@emailjs/browser';
-
-// Initialize EmailJS with your public key
-emailjs.init("YOUR_PUBLIC_KEY");
+import { FaTrash, FaShoppingBag, FaSpinner } from 'react-icons/fa';
+import checkoutService from '../services/checkoutService';
 
 const Cart: React.FC = () => {
-  const { items, removeFromCart, clearCart } = useCart();
+  const { items, removeFromCart, clearCart, total, loading, error } = useCart();
   const { user } = useUser();
   const navigate = useNavigate();
-  const [isSending, setIsSending] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Reset error state when items change
-    setError(null);
-  }, [items]);
-
-  const handleSendEmail = async () => {
-    if (items.length === 0) {
-      setError('Your cart is empty!');
-      return;
-    }
-
+  const handleCheckout = async (): Promise<void> => {
     if (!user) {
-      setError('Please log in to place an order');
+      navigate('/login', { state: { from: '/cart' } });
       return;
     }
 
-    setIsSending(true);
-    setError(null);
+    if (items.length === 0) {
+      setCheckoutError('Your cart is empty!');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    setCheckoutError(null);
 
     try {
-      // Group items by seller email
-      const itemsBySeller = items.reduce((acc, item) => {
-        if (!acc[item.sellerEmail]) {
-          acc[item.sellerEmail] = [];
-        }
-        acc[item.sellerEmail].push(item);
-        return acc;
-      }, {} as Record<string, typeof items>);
-
-      // Send email to each seller
-      for (const [sellerEmail, sellerItems] of Object.entries(itemsBySeller)) {
-        const totalPrice = sellerItems.reduce((sum, item) => sum + item.price, 0);
-        
-        const templateParams = {
-          to_email: sellerEmail,
-          from_name: user.username,
-          from_email: user.email,
-          message: message || 'No additional message provided.',
-          items: sellerItems.map(item => ({
-            title: item.title,
-            artist: item.artist,
-            price: item.price
-          })),
-          total_price: totalPrice
-        };
-
-        await emailjs.send(
-          'YOUR_SERVICE_ID',
-          'YOUR_TEMPLATE_ID',
-          templateParams
-        );
-      }
-
-      alert('Order placed successfully! Sellers will contact you shortly.');
-      clearCart();
+      // Process checkout through backend API
+      const response = await checkoutService.checkout(message);
+      
+      // Show success message
+      alert('Order placed successfully! Thank you for your purchase.');
+      
+      // Clear cart after successful order (backend already cleared the cart in database)
+      await clearCart();
+      
+      // Redirect to home page
       navigate('/');
-    } catch (error) {
-      console.error('Error sending email:', error);
-      setError('Failed to place order. Please try again.');
+    } catch (error: any) {
+      console.error('Error during checkout:', error);
+      setCheckoutError(typeof error === 'string' ? error : 'There was an error processing your order. Please try again.');
     } finally {
-      setIsSending(false);
+      setIsCheckingOut(false);
     }
   };
 
-  if (items.length === 0) {
+  // Render loading state
+  if (loading && items.length === 0) {
+    return (
+      <LoadingContainer>
+        <FaSpinner className="spinner" />
+        <LoadingText>Loading your cart...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
+  // If cart is empty
+  if (items.length === 0 && !loading) {
     return (
       <EmptyCartContainer>
         <EmptyCartText>Your cart is empty</EmptyCartText>
@@ -96,23 +76,30 @@ const Cart: React.FC = () => {
     <CartContainer>
       <CartHeader>
         <h2>Your Cart</h2>
-        <ClearCartButton onClick={clearCart}>
+        <ClearCartButton onClick={() => clearCart()} disabled={loading || isCheckingOut}>
           <FaTrash /> Clear Cart
         </ClearCartButton>
       </CartHeader>
       
       {error && <ErrorMessage>{error}</ErrorMessage>}
+      {checkoutError && <ErrorMessage>{checkoutError}</ErrorMessage>}
       
       <CartItems>
         {items.map((item) => (
           <CartItem key={item.id}>
-            <ItemImage src={item.image} alt={item.title} />
+            <ItemImage src={item.image} alt={item.title} onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'https://via.placeholder.com/100?text=No+Image';
+            }} />
             <ItemDetails>
               <h3>{item.title}</h3>
               <p>by {item.artist}</p>
               <p>${item.price.toFixed(2)}</p>
             </ItemDetails>
-            <RemoveButton onClick={() => removeFromCart(item.id)}>
+            <RemoveButton 
+              onClick={() => removeFromCart(item.id)} 
+              disabled={loading || isCheckingOut}
+            >
               <FaTrash />
             </RemoveButton>
           </CartItem>
@@ -120,26 +107,36 @@ const Cart: React.FC = () => {
       </CartItems>
 
       <MessageInput
-        placeholder="Add a message for the sellers (optional)"
+        placeholder="Add order notes (optional)"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        disabled={isCheckingOut}
       />
 
       <CartSummary>
         <TotalAmount>
-          Total: ${items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}
+          Total: ${total.toFixed(2)}
         </TotalAmount>
         <CheckoutButton 
-          onClick={handleSendEmail} 
-          disabled={isSending || !user}
+          onClick={handleCheckout} 
+          disabled={isCheckingOut || loading || !user}
         >
-          {!user ? 'Please Log In' : isSending ? 'Processing...' : 'Place Order'}
+          {!user ? 'Please Log In' : isCheckingOut ? (
+            <>
+              <FaSpinner className="spinner" /> Processing...
+            </>
+          ) : (
+            <>
+              <FaShoppingBag /> Complete Order
+            </>
+          )}
         </CheckoutButton>
       </CartSummary>
     </CartContainer>
   );
 };
 
+// Styled components
 const CartContainer = styled.div`
   padding: 2rem;
   max-width: 1200px;
@@ -160,7 +157,7 @@ const CartHeader = styled.div`
   }
 `;
 
-const ClearCartButton = styled.button`
+const ClearCartButton = styled.button<{ disabled?: boolean }>`
   background: #ff4444;
   color: white;
   border: none;
@@ -173,6 +170,11 @@ const ClearCartButton = styled.button`
 
   &:hover {
     background: #cc0000;
+  }
+
+  &:disabled {
+    background: #777;
+    cursor: not-allowed;
   }
 `;
 
@@ -213,7 +215,7 @@ const ItemDetails = styled.div`
   }
 `;
 
-const RemoveButton = styled.button`
+const RemoveButton = styled.button<{ disabled?: boolean }>`
   background: none;
   border: none;
   color: #ff4444;
@@ -223,9 +225,14 @@ const RemoveButton = styled.button`
   &:hover {
     color: #cc0000;
   }
+
+  &:disabled {
+    color: #777;
+    cursor: not-allowed;
+  }
 `;
 
-const MessageInput = styled.textarea`
+const MessageInput = styled.textarea<{ disabled?: boolean }>`
   width: 100%;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -239,6 +246,11 @@ const MessageInput = styled.textarea`
   &:focus {
     outline: none;
     border-color: #4c4c4c;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;
 
@@ -257,7 +269,7 @@ const TotalAmount = styled.div`
   font-weight: bold;
 `;
 
-const CheckoutButton = styled.button`
+const CheckoutButton = styled.button<{ disabled?: boolean }>`
   background: #4CAF50;
   color: white;
   border: none;
@@ -265,6 +277,18 @@ const CheckoutButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
   &:hover {
     background: #45a049;
@@ -281,7 +305,7 @@ const EmptyCartContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 80vh;
   background-color: #1c1c1c;
   color: #ffffff;
 `;
@@ -313,4 +337,29 @@ const ErrorMessage = styled.div`
   text-align: center;
 `;
 
-export default Cart; 
+const LoadingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  background-color: #1c1c1c;
+  color: #ffffff;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.p`
+  font-size: 1.2rem;
+`;
+
+export default Cart;

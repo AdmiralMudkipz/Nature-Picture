@@ -1,13 +1,24 @@
+# cart/serializers.py
 from rest_framework import serializers
 from base.models import CartArtPiece, ArtPiece, Cart, Users
-from artpiece.serializers import ArtPieceSerializer  # If you want nested details
+from artpiece.serializers import ArtPieceSerializer
+from users.serializers import UserSerializer
 
 class CartArtPieceSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source='art.title', read_only=True)
-    price = serializers.DecimalField(source='art.price', max_digits=10, decimal_places=2, read_only=True)
-
+    art = ArtPieceSerializer(read_only=True)
+    
     class Meta:
         model = CartArtPiece
-        fields = '__all__'  # or specify the fields you want to include
-       #  fields = ['cart_art_id', 'cart', 'art', 'title', 'price']  # Include only fields you need
+        fields = ['cart_art_id', 'cart', 'art']
 
+class CartSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    items = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Cart
+        fields = ['cart_id', 'user', 'items']
+    
+    def get_items(self, obj):
+        cart_items = CartArtPiece.objects.filter(cart=obj)
+        return CartArtPieceSerializer(cart_items, many=True).data

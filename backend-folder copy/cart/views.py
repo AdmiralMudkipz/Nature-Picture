@@ -1,14 +1,14 @@
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
+# cart/views.py
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from base.models import CartArtPiece, ArtPiece, Cart, Users
 from .serializers import CartArtPieceSerializer
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
-    
-# view all cart items for a specific user. to test this a user has to be logged in first  
+# View all cart items for a specific user
 class UserCartListView(ListAPIView):
     serializer_class = CartArtPieceSerializer
 
@@ -18,24 +18,25 @@ class UserCartListView(ListAPIView):
             return CartArtPiece.objects.none()
         
         user = get_object_or_404(Users, pk=user_id)
-        cart = getattr(user, 'cart', None)
-        if not cart:
-            return CartArtPiece.objects.none()
         
-        return CartArtPiece.objects.filter(cart=cart)  
-    
+        # Get or create user's cart
+        cart, created = Cart.objects.get_or_create(user=user)
+        
+        return CartArtPiece.objects.filter(cart=cart)
 
-
-# Handles adding an item to the cart. not fully working rn. 
+# Handle adding an item to the cart
 class AddToCartView(APIView):
-    # permission_classes = [IsAuthenticated]
-
     def post(self, request, art_id):
-        user = request.user  # assuming user is authenticated
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        user = get_object_or_404(Users, pk=user_id)
+        
         try:
             art_piece = ArtPiece.objects.get(art_id=art_id)
         except ArtPiece.DoesNotExist:
-            return Response({"message": "Art piece not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Art piece not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Find or create the user's cart
         cart, created = Cart.objects.get_or_create(user=user)
@@ -44,30 +45,61 @@ class AddToCartView(APIView):
         existing_item = CartArtPiece.objects.filter(cart=cart, art=art_piece).first()
 
         if existing_item:
-            # If item already exists, increment the stock or show message
-            if art_piece.stock_amount > 0:
-                art_piece.stock_amount -= 1
-                art_piece.save()
-                return Response({"message": "Item added to cart."}, status=status.HTTP_200_OK)
-            else:
-                return Response({"message": "Item out of stock."}, status=status.HTTP_400_BAD_REQUEST)
+            # Item already in cart, return success
+            return Response({"message": "Item already in cart"}, status=status.HTTP_200_OK)
         else:
-            # If item doesn't exist, create a new CartArtPiece
+            # Create new cart item
             if art_piece.stock_amount > 0:
                 CartArtPiece.objects.create(cart=cart, art=art_piece)
-                art_piece.stock_amount -= 1
-                art_piece.save()
-                return Response({"message": "Item added to cart."}, status=status.HTTP_201_CREATED)
+                return Response({"message": "Item added to cart"}, status=status.HTTP_201_CREATED)
             else:
-                return Response({"message": "Item out of stock."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "Item out of stock"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+# Remove an item from the cart
+class RemoveFromCartAPIView(APIView):
+    def delete(self, request, art_id):
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        user = get_object_or_404(Users, pk=user_id)
         
-# Delete an item from the cart 
-class RemoveFromCartAPIView(DestroyAPIView):
-    queryset = CartArtPiece.objects.all()
-    serializer_class = CartArtPieceSerializer
-    permission_classes = [IsAuthenticated]
+        # Get user's cart
+        try:
+            cart = Cart.objects.get(user=user)
+        except Cart.DoesNotExist:
+            return Response({"error": "Cart does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Find art piece
+        try:
+            art_piece = ArtPiece.objects.get(art_id=art_id)
+        except ArtPiece.DoesNotExist:
+            return Response({"error": "Art piece not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Remove item from cart
+        cart_item = CartArtPiece.objects.filter(cart=cart, art=art_piece).first()
+        if cart_item:
+            cart_item.delete()
+            return Response({"message": "Item removed from cart"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Item not in cart"}, status=status.HTTP_404_NOT_FOUND)
 
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+# Clear cart
+class ClearCartAPIView(APIView):
+    def delete(self, request):
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        user = get_object_or_404(Users, pk=user_id)
+        
+        # Get user's cart
+        try:
+            cart = Cart.objects.get(user=user)
+            
+            # Delete all items in cart
+            CartArtPiece.objects.filter(cart=cart).delete()
+            
+            return Response({"message": "Cart cleared"}, status=status.HTTP_200_OK)
+        except Cart.DoesNotExist:
+            return Response({"message": "Cart is already empty"}, status=status.HTTP_200_OK)
