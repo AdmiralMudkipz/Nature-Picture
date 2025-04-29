@@ -1,10 +1,10 @@
 import React, { useState, CSSProperties, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import for navigation
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
-  defaultPath?: string; // Path to navigate to when query is empty
+  defaultPath?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) => {
@@ -12,7 +12,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Function to sanitize input to prevent SQL injection 
+  // Function to sanitize input to prevent SQL injection
   const sanitizeInput = (input: string): string => {
     // Basic sanitization: Remove SQL keywords and special characters
     return input
@@ -26,10 +26,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
     
     const sanitizedQuery = sanitizeInput(query.trim());
     
-    // Always call onSearch - with empty string if cleared
+    // Call onSearch with the sanitized query
     onSearch(sanitizedQuery);
     
-    // If query is empty, also navigate to default path
+    // If query is empty, navigate to default path
     if (!sanitizedQuery) {
       navigate(defaultPath, { replace: true });
     }
@@ -40,7 +40,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
     const newValue = e.target.value;
     setQuery(newValue);
   };
-  
+
   // Effect to watch for empty query and trigger reload
   useEffect(() => {
     // If user clears the input, reset the search
@@ -54,7 +54,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
     }
   }, [query, navigate, defaultPath, location, onSearch]);
 
-
   return (
     <div style={styles.container}>
       <form onSubmit={handleSearch} style={styles.form}>
@@ -65,15 +64,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
             style={styles.searchInput}
             value={query}
             onChange={handleInputChange}
-            placeholder="Search..."
+            placeholder="Search by title..."
           />
         </div>
       </form>
     </div>
   );
 };
-
-export default SearchBar;
 
 const styles: Record<string, CSSProperties> = {
   container: {
@@ -112,5 +109,8 @@ const styles: Record<string, CSSProperties> = {
     transform: 'translateY(-50%)',
     fontSize: '20px',
     color: '#ffffff',
+    zIndex: 1,
   },
 };
+
+export default SearchBar;

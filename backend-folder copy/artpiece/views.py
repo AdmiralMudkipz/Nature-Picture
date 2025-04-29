@@ -9,19 +9,37 @@ from django.shortcuts import get_object_or_404
 from base.models import Location, ArtPiece, Users  
 from .serializers import ArtPieceSerializer, LocationSerializer # Import the serializer
 import django_filters
+from django.db.models import Q
+import re
 
 # retrieve all locations in the database
 class AllLocationsAPIView(ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
 
-# 
-class ArtPieceFilter(FilterSet):
+class ArtPieceFilter(django_filters.FilterSet):
     type_of_art = django_filters.BaseInFilter(field_name="type_of_art", lookup_expr="in")
-
+    search = django_filters.CharFilter(method='filter_combined_search')
+    
+    def filter_combined_search(self, queryset, name, value):
+        # Sanitize input - remove potentially harmful characters
+        sanitized_value = self.sanitize_input(value)
+        
+        if not sanitized_value:
+            return queryset
+            
+        # This means "find records where the value is in ANY of these fields" - 
+        # without Q objects, Django's default behavior would require all conditions to match.
+        return queryset.filter(
+            Q(title__icontains=sanitized_value) | 
+            Q(location__icontains=sanitized_value) |
+            Q(artist__name__icontains=sanitized_value) |
+            Q(description__icontains=sanitized_value)
+        )
+    
     class Meta:
         model = ArtPiece
-        fields = ['type_of_art', 'location']
+        fields = ['type_of_art', 'search']
 
 
 # uses Django REST Framework's ListAPIView which is made for listing multiple objects
