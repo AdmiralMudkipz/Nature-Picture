@@ -9,9 +9,12 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta
+import boto3
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,12 +50,32 @@ INSTALLED_APPS = [
     "purchase_order",
     'rest_framework_simplejwt',
     'corsheaders',
+    "storages",
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
+# Add these AWS S3 settings to your settings.py
+
+# In settings.py
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+
+# AWS S3 Configuration
+AWS_STORAGE_BUCKET_NAME = 'nature-picture-images'
+AWS_S3_REGION_NAME = 'us-east-2'  # Change to your region if different
+AWS_QUERYSTRING_AUTH = False  # This will remove query parameter authentication from generated URLs
+
+# S3 Storage configuration
+DEFAULT_FILE_STORAGE = 'myproject.storage_backends.MediaStorage'
+
+# Optional but recommended settings
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',  # 1 day cache
+}
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -104,7 +127,7 @@ WSGI_APPLICATION = "myproject.wsgi.application"
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nature_picture_backup',
+        'NAME': 'nature_picture',
         'USER': 'root',
         'PASSWORD': 'vufbuc-Gyi12',
         'HOST': 'localhost',  # or your MySQL server IP

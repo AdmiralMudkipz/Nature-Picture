@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import ReactPortal from "../ReactPortal"; // Make sure this still points to your portal logic
-import { useUser } from "../../context/UserContext"; // Import the custom hook to access the user
+import ReactPortal from "../ReactPortal";
+import { useUser } from "../../context/UserContext";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -15,67 +15,117 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   handleClose,
   children,
 }) => {
-  const { user, isLoading } = useUser(); // Access user from context
+  const { user, isLoading } = useUser();
 
-  // If user is still loading or not logged in, return null or display a loading message
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <div>You must be logged in to add a listing.</div>; // Show a message if user is not logged in
-  }
-
+  // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number | null>(null);
   const [typeOfArt, setTypeOfArt] = useState("");
   const [county, setCounty] = useState("");
-  const [state, setState] = useState("NJ"); // Default to NJ if all listings are in NJ
-
+  const [state, setState] = useState("NJ");
   const [stock, setStock] = useState<number | null>(null);
+  
+  // Image handling
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string>("");
+
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Basic validation
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setUploadStatus("Error: File size should not exceed 5MB");
+        return;
+      }
+      
+      const fileType = file.type;
+      if (!fileType.match(/^image\/(jpeg|png|gif|webp)$/)) {
+        setUploadStatus("Error: Only JPG, PNG, GIF, and WEBP formats are supported");
+        return;
+      }
+      
+      setSelectedImage(file);
+      setUploadStatus("");
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadStatus("Submitting...");
 
-    // Create the new listing object
-    const newListing = {
-      name: title,
-      description,
-      price,
-      type_of_art: typeOfArt,
-      county,
-      state,
-      stock_amount: stock,
-      user_id: user.user_id,
-    };
+      // Check if user is null before proceeding
+  if (!user) {
+    setUploadStatus("Error: You must be logged in to add a listing.");
+    return;
+  }
+
 
     try {
-      // Send the data to the backend using Axios
+      // Create FormData object to send both text fields and file
+      const formData = new FormData();
+      formData.append("name", title);
+      formData.append("description", description);
+      formData.append("price", price ? price.toString() : "");
+      formData.append("type_of_art", typeOfArt);
+      formData.append("county", county);
+      formData.append("state", state);
+      formData.append("stock_amount", stock ? stock.toString() : "");
+      formData.append("user_id", user.user_id.toString());
+      
+      // Append image if selected
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      // Send the data
       const response = await axios.post(
         "http://localhost:8000/base/artpieces/create/",
-        newListing,
-        { withCredentials: true } // Include credentials for session management
+        formData,
+        { 
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data" 
+          }
+        }
       );
+      
       console.log("Listing created successfully:", response.data);
-
-      // Reset form fields
-      setTitle("");
-      setDescription("");
-      setPrice(null);
-      setTypeOfArt("");
-      setStock(null);
-      setCounty("");
-
-      // Close the modal
-      handleClose();
+      setUploadStatus("Success! Your listing has been created.");
+      
+      // Reset form
+      setTimeout(() => {
+        setTitle("");
+        setDescription("");
+        setPrice(null);
+        setTypeOfArt("");
+        setStock(null);
+        setCounty("");
+        setSelectedImage(null);
+        setImagePreview(null);
+        setUploadStatus("");
+        handleClose();
+      }, 1500);
+      
     } catch (error) {
       console.error("Error creating listing:", error);
-      // You can show an error message to the user here if desired
+      setUploadStatus("Error: Failed to create listing. Please try again.");
     }
   };
 
   if (!isOpen) return null;
+  if (isLoading) return <div>Loading...</div>;
+  if (!user) return <div>You must be logged in to add a listing.</div>;
 
   return (
     <ReactPortal wrapperId="add-listing-modal">
@@ -174,8 +224,8 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
               <option value="sussex">Sussex</option>
               <option value="union">Union</option>
               <option value="warren">Warren</option>
-              {/* Add other counties */}
             </Select>
+            
             <Label>State</Label>
             <Select
               value={state}
@@ -183,13 +233,37 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
               required
             >
               <option value="NJ">New Jersey</option>
-              {/* Add other states here if needed */}
             </Select>
 
             <Label>Upload Image:</Label>
-            {/* You can add <input type="file" /> here later if needed */}
+            <FileInputContainer>
+              <FileInput 
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageChange} 
+              />
+              <FileInputLabel>Choose File</FileInputLabel>
+            </FileInputContainer>
+            
+            {selectedImage && (
+              <SelectedFileName>Selected: {selectedImage.name}</SelectedFileName>
+            )}
+            
+            {imagePreview && (
+              <ImagePreviewContainer>
+                <img src={imagePreview} alt="Preview" />
+              </ImagePreviewContainer>
+            )}
+            
+            {uploadStatus && (
+              <StatusMessage isError={uploadStatus.startsWith('Error')}>
+                {uploadStatus}
+              </StatusMessage>
+            )}
 
-            <SubmitButton type="submit">Submit</SubmitButton>
+            <SubmitButton type="submit" disabled={uploadStatus === "Submitting..."}>
+              {uploadStatus === "Submitting..." ? "Submitting..." : "Submit"}
+            </SubmitButton>
           </StyledForm>
         </ModalContent>
       </ModalOverlay>
@@ -197,9 +271,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   );
 };
 
-export default AddListingModal;
-
-// Styled components
+// Add the missing styled components from your original file
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -269,4 +341,68 @@ const SubmitButton = styled.button`
   color: black;
   border: 1px solid #000;
   cursor: pointer;
+  
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
+
+// New styled components for image upload
+const FileInputContainer = styled.div`
+  position: relative;
+  margin-top: 5px;
+  display: inline-block;
+`;
+
+const FileInput = styled.input`
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+`;
+
+const FileInputLabel = styled.span`
+  display: inline-block;
+  padding: 8px 12px;
+  background: #4c4c4c;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  
+  &:hover {
+    background: #555;
+  }
+`;
+
+const SelectedFileName = styled.div`
+  margin-top: 5px;
+  font-size: 14px;
+  color: #aaa;
+`;
+
+const ImagePreviewContainer = styled.div`
+  margin-top: 10px;
+  max-width: 100%;
+  text-align: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid #444;
+  }
+`;
+
+const StatusMessage = styled.div<{ isError: boolean }>`
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: ${props => props.isError ? 'rgba(255, 77, 79, 0.1)' : 'rgba(76, 175, 80, 0.1)'};
+  color: ${props => props.isError ? '#ff4d4f' : '#4CAF50'};
+`;
+
+export default AddListingModal;

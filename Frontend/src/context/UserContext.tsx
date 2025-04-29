@@ -15,6 +15,7 @@ interface UserContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
+  logout: () => void;
 }
 
 // Create the context with default values
@@ -25,16 +26,35 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+  }, [user]);
+
+  // Load user from localStorage on initial render
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Restore user data from localStorage
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Failed to parse user from localStorage", error);
+        localStorage.removeItem("user");
+      }
     }
-    setIsLoading(false); // Set loading state to false once the check is done
+    setIsLoading(false);
   }, []);
 
+  // Logout function to clear user state and localStorage
+  const logout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isLoading }}>
+    <UserContext.Provider value={{ user, setUser, isLoading, logout }}>
       {children}
     </UserContext.Provider>
   );

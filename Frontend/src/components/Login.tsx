@@ -5,16 +5,14 @@ import axios from "axios";
 import styled from "styled-components";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 
-
 // Home page is using this login.tsx file. other one needs to be deleted. 
-
 
 interface LoginResponse {
   username: string;
   user_id: number;
-  first_name: string; // Add first_name in the response type
-  last_name: string;  // Add last_name in the response type
-  email: string;      // Add email in the response type
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 interface SignUpData {
@@ -58,14 +56,20 @@ const Login = () => {
       // Destructure the response data
       const { username: userName, user_id, first_name, last_name, email } = response.data;
 
-      // Update the user context
-      setUser({
+      // Create the user object
+      const userData = {
         username: userName,
         user_id,
         first_name,
         last_name,
         email,
-      });
+      };
+
+      // Update the user context - this will also save to localStorage via the effect in UserContext
+      setUser(userData);
+
+      // Manually save to localStorage as a backup
+      localStorage.setItem("user", JSON.stringify(userData));
 
       const redirectPath = location.state?.from || "/Home";
       navigate(redirectPath);
