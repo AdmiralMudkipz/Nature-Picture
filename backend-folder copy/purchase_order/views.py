@@ -62,6 +62,11 @@ class CreatePurchaseOrderAPIView(APIView):
                 # Add items to purchase order
                 for cart_item in cart_items:
                     art_piece = cart_item.art
+
+                    if art_piece.user.user_id == user.user_id:
+                        return Response({
+                            "error": f"You cannot purchase your own art: '{art_piece.name}'"
+                         }, status=status.HTTP_400_BAD_REQUEST)
                     
                     # Check if item is still in stock
                     if art_piece.stock_amount <= 0:

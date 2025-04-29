@@ -1,3 +1,4 @@
+// src/pages/Home.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
@@ -6,40 +7,34 @@ import Modal from "../components/modalstuff/Modal";
 import SearchBar from "../components/SearchBar";
 import Sidebar from "../components/Sidebar";
 import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext";
 
 interface Product {
-  art_id: number;
-  type_of_art: string;
-  name: string;
-  description?: string | null;
-  image?: string | null;
-  stock_amount: number;
-  price?: number | null;
-  location: {
-    location_id: number;
-    county: string;
-    state: string;
-  };
-  user: {
-    user_id: number;
-    first_name: string;
-    last_name: string;
-    email?: string;
-  };
+  id: string;
+  images: string[];
+  title: string;
+  artist: string;
+  price: number;
+  typeOfArt: string;
+  bio: string;
+  sellerEmail: string;
+  sellerId: string; // Add sellerId field
+  location: string;
+  stock: number;
 }
 
 const Home: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { addToCart } = useCart();
-  const [products, setProducts] = useState<any[]>([]);
+  const { addToCart, error: cartError } = useCart();
+  const { user } = useUser();
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -49,18 +44,11 @@ const Home: React.FC = () => {
         console.log("Raw API response:", response.data);
         
         if (response.data.length > 0) {
-          // Debug log first item
           console.log("First item image:", response.data[0].image);
           console.log("First item image_url:", response.data[0].image_url);
         }
   
         const formattedProducts = response.data.map((item: any) => {
-          // Debug log each item's image fields
-          console.log(`Item ${item.art_id} image fields:`, {
-            image: item.image,
-            image_url: item.image_url
-          });
-          
           return {
             id: String(item.art_id),
             // Try image_url first, then fall back to image
@@ -71,7 +59,8 @@ const Home: React.FC = () => {
             price: item.price !== null ? parseFloat(String(item.price)) : 0,
             typeOfArt: item.type_of_art,
             bio: item.description || "",
-            sellerEmail: item.user?.email || `user_${item.user_id}@example.com`,
+            sellerEmail: item.user?.email || `user_${item.user.user_id}@example.com`,
+            sellerId: String(item.user.user_id), // Add the seller's user_id
             location: String(item.location.location_id),
             stock: item.stock_amount,
           };
@@ -100,13 +89,11 @@ const Home: React.FC = () => {
       const isSearchMatch =
         !searchQuery ||
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // product.artist.toLowerCase().includes(searchQuery.toLowerCase()) || backend only accounts for title & description
         product.typeOfArt.toLowerCase().includes(searchQuery.toLowerCase());
   
       return isCategoryMatch && isCountyMatch && isSearchMatch;
     });
   };
-  
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -122,7 +109,7 @@ const Home: React.FC = () => {
 
   const filteredProducts = filterProducts();
 
-  const openModal = (product: any) => {
+  const openModal = (product: Product) => {
     setSelectedProduct(product);
     setModalOpen(true);
   };
@@ -133,19 +120,30 @@ const Home: React.FC = () => {
   };
 
   const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    
+    // Check if user is trying to purchase their own art
+    if (user && selectedProduct.sellerId === user.user_id.toString()) {
+      alert("You cannot purchase your own artwork");
+      return;
+    }
+    
     if (selectedProduct.stock === 0) {
       alert("This item is sold out and cannot be added to the cart.");
       return;
     }
-    if (selectedProduct) {
-      addToCart({
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        artist: selectedProduct.artist,
-        price: selectedProduct.price,
-        image: selectedProduct.images[0] || "",
-        sellerEmail: selectedProduct.sellerEmail,
-      });
+    
+    addToCart({
+      id: selectedProduct.id,
+      title: selectedProduct.title,
+      artist: selectedProduct.artist,
+      price: selectedProduct.price,
+      image: selectedProduct.images[0] || "",
+      sellerEmail: selectedProduct.sellerEmail,
+      sellerId: selectedProduct.sellerId
+    });
+    
+    if (!cartError) {
       alert(`Added ${selectedProduct.title} to your cart!`);
       closeModal();
     }
@@ -156,11 +154,11 @@ const Home: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading art listings...</div>;
+    return <LoadingContainer>Loading art listings...</LoadingContainer>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <ErrorContainer>Error: {error}</ErrorContainer>;
   }
 
   return (
@@ -174,25 +172,31 @@ const Home: React.FC = () => {
           onSidebarToggle={handleSidebarToggle}
         />
         <WidgetGrid $isSidebarOpen={isSidebarOpen}>
-          {filteredProducts.map((product) => (
-            <WidgetWrapper key={product.id} onClick={() => openModal(product)}>
-              <Widget
-                image={product.images[0] || ""}
-                title={product.title}
-                artist={product.artist}
-                price={product.price}
-                sellerEmail={product.sellerEmail}
-                typeOfArt={product.typeOfArt}
-                stock={product.stock}
-                id={product.id}
-                soldOut={product.stock === 0}
-              />
-            </WidgetWrapper>
-          ))}
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <WidgetWrapper key={product.id} onClick={() => openModal(product)}>
+                <Widget
+                  image={product.images[0] || ""}
+                  title={product.title}
+                  artist={product.artist}
+                  price={product.price}
+                  sellerEmail={product.sellerEmail}
+                  sellerId={product.sellerId}
+                  id={product.id}
+                  soldOut={product.stock === 0}
+                />
+              </WidgetWrapper>
+            ))
+          ) : (
+            <NoResultsMessage>
+              No art pieces match your search criteria. Try adjusting your filters.
+            </NoResultsMessage>
+          )}
         </WidgetGrid>
       </ContentWrapper>
       {isModalOpen && selectedProduct && (
         <Modal
+          isOpen={isModalOpen}
           images={selectedProduct.images}
           title={selectedProduct.title}
           artist={selectedProduct.artist}
@@ -200,6 +204,7 @@ const Home: React.FC = () => {
           typeOfArt={selectedProduct.typeOfArt}
           bio={selectedProduct.bio}
           stock={selectedProduct.stock}
+          sellerId={selectedProduct.sellerId}
           onClose={closeModal}
           onAddToCart={handleAddToCart}
         />
@@ -239,6 +244,38 @@ const WidgetGrid = styled.div<{ $isSidebarOpen: boolean }>`
 
 const WidgetWrapper = styled.div`
   cursor: pointer;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #1c1c1c;
+  color: #ffffff;
+  font-size: 1.5rem;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #1c1c1c;
+  color: #ff4d4f;
+  font-size: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+`;
+
+const NoResultsMessage = styled.div`
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.2rem;
 `;
 
 export default Home;

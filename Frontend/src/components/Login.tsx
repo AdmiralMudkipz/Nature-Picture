@@ -21,7 +21,7 @@ interface SignUpData {
   first_name: string;
   last_name: string;
   password: string;
-  confirm_password: string;
+  password_confirm: string;
 }
 
 const Login = () => {
@@ -35,7 +35,7 @@ const Login = () => {
     first_name: "",
     last_name: "",
     password: "",
-    confirm_password: ""
+    password_confirm: ""
   });
   const [signUpErrors, setSignUpErrors] = useState<Record<string, string>>({});
   const { setUser } = useUser(); // Destructure setUser from context to update the user state
@@ -90,8 +90,8 @@ const Login = () => {
     if (!signUpData.last_name) newErrors.last_name = 'Last name is required';
     if (!signUpData.password) newErrors.password = 'Password is required';
     else if (signUpData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
-    if (!signUpData.confirm_password) newErrors.confirm_password = 'Please confirm your password';
-    else if (signUpData.password !== signUpData.confirm_password) newErrors.confirm_password = 'Passwords do not match';
+    if (!signUpData.password_confirm) newErrors.password_confirm = 'Please confirm your password';
+    else if (signUpData.password !== signUpData.password_confirm) newErrors.password_confirm = 'Passwords do not match';
 
     setSignUpErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -110,7 +110,7 @@ const Login = () => {
           first_name: signUpData.first_name,
           last_name: signUpData.last_name,
           password: signUpData.password,
-          confirm_password: signUpData.confirm_password, // match password
+          password_confirm: signUpData.password_confirm, // match password
         }
       );
       
@@ -248,14 +248,14 @@ const Login = () => {
                 <Icon><FaLock /></Icon>
                 <Input
                   type="password"
-                  name="confirm_password"
-                  value={signUpData.confirm_password}
+                  name="password_confirm"
+                  value={signUpData.password_confirm}
                   onChange={handleSignUpChange}
                   placeholder="Confirm Password"
-                  $hasError={!!signUpErrors.confirm_password}
+                  $hasError={!!signUpErrors.password_confirm}
                 />
               </InputGroup>
-              {signUpErrors.confirm_password && <ErrorText>{signUpErrors.confirm_password}</ErrorText>}
+              {signUpErrors.password_confirm && <ErrorText>{signUpErrors.password_confirm}</ErrorText>}
             </FormGroup>
 
             <SubmitButton type="submit">Sign Up</SubmitButton>

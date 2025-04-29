@@ -1,5 +1,7 @@
+// src/components/modalstuff/Modal.tsx
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useUser } from "../../context/UserContext";
 
 interface ModalProps {
   images: string[];
@@ -11,7 +13,9 @@ interface ModalProps {
   stock: number;
   onClose: () => void;
   onAddToCart: () => void;
-  showAddToCart?: boolean; // prop to control button visibility
+  showAddToCart?: boolean;
+  sellerId?: string; // Add sellerId prop
+  isOpen: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -25,8 +29,14 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   onAddToCart,
   showAddToCart = true,
+  sellerId,
+  isOpen,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { user } = useUser();
+  
+  // Check if the current user is the seller of this item
+  const isUserSeller = user && sellerId && user.user_id.toString() === sellerId;
 
   const goToPreviousImage = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -39,6 +49,8 @@ const Modal: React.FC<ModalProps> = ({
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
     );
   };
+
+  if (!isOpen) return null;
 
   return (
     <ModalBackdrop onClick={onClose}>
@@ -77,10 +89,26 @@ const Modal: React.FC<ModalProps> = ({
             <TypeOfArt>Type: {typeOfArt}</TypeOfArt>
             <Bio>{bio}</Bio>
             <Stock>Stock: {stock}</Stock>
+            
+            {/* Show warning if user is trying to buy their own art */}
+            {isUserSeller && (
+              <SellerWarning>
+                You cannot purchase your own artwork
+              </SellerWarning>
+            )}
           </Details>
-          {/* Only render the Add to Cart button if showAddToCart is true */}
-          {showAddToCart && (
-            <AddToCartButton onClick={onAddToCart}>Add to Cart</AddToCartButton>
+          {/* Only render the Add to Cart button if showAddToCart is true and user is not the seller */}
+          {showAddToCart && !isUserSeller && (
+            <AddToCartButton onClick={onAddToCart} disabled={stock <= 0}>
+              {stock <= 0 ? "Sold Out" : "Add to Cart"}
+            </AddToCartButton>
+          )}
+          
+          {/* Show disabled button with message if user is the seller */}
+          {showAddToCart && isUserSeller && (
+            <DisabledButton disabled>
+              You created this artwork
+            </DisabledButton>
           )}
         </RightSection>
       </ModalContent>
@@ -207,7 +235,16 @@ const Stock = styled.p`
   margin-top: 20px;
 `;
 
-const AddToCartButton = styled.button`
+const SellerWarning = styled.div`
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff4d4f;
+  border-radius: 4px;
+  text-align: center;
+`;
+
+const AddToCartButton = styled.button<{ disabled?: boolean }>`
   background: rgb(0, 0, 0);
   color: white;
   border: none;
@@ -221,6 +258,23 @@ const AddToCartButton = styled.button`
   &:hover {
     background: rgb(4, 90, 34);
   }
+
+  &:disabled {
+    background: #444;
+    cursor: not-allowed;
+    color: #aaa;
+  }
+`;
+
+const DisabledButton = styled.button`
+  background: #333;
+  color: #999;
+  border: none;
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: not-allowed;
+  margin-top: 20px;
 `;
 
 export default Modal;

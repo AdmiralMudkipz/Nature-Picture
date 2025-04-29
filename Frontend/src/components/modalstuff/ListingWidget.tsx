@@ -1,3 +1,4 @@
+// src/components/modalstuff/ListingWidget.tsx
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,10 +10,20 @@ interface WidgetProps {
   price: number;
   sellerEmail: string;
   id: string;
+  sellerId?: string; // Add sellerId field
   soldOut?: boolean;
 }
 
-const Widget: React.FC<WidgetProps> = ({ image, title, artist, price, sellerEmail, id, soldOut }) => {
+const Widget: React.FC<WidgetProps> = ({ 
+  image, 
+  title, 
+  artist, 
+  price, 
+  sellerEmail, 
+  id, 
+  sellerId,
+  soldOut 
+}) => {
   return (
     <WidgetContainer>
       <ImageWrapper>
@@ -147,6 +158,5 @@ const SoldOutBadge = styled.div`
   z-index: 2;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 `;
-
 
 export default Widget;

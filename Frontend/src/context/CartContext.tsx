@@ -1,8 +1,9 @@
 // src/context/CartContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import cartService from '../services/CartService'
+import cartService from '../services/cartService';
 import { useUser } from './UserContext';
 
+// Export the CartItem interface so it can be imported elsewhere
 export interface CartItem {
   id: string;
   title: string;
@@ -10,13 +11,14 @@ export interface CartItem {
   price: number;
   image: string;
   sellerEmail: string;
+  sellerId?: string; // Add sellerId field to track who's selling the item
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
+  addToCart: (item: CartItem) => Promise<void>;
+  removeFromCart: (id: string) => Promise<void>;
+  clearCart: () => Promise<void>;
   total: number;
   loading: boolean;
   error: string | null;
@@ -41,7 +43,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [user]);
 
   // Fetch cart from backend
-  const fetchCart = async () => {
+  const fetchCart = async (): Promise<void> => {
     if (!user) return;
     
     setLoading(true);
@@ -51,13 +53,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const cartData = await cartService.getUserCart();
       
       // Transform backend data format to frontend format
-      const transformedItems = cartData.map((item: any) => ({
+      const transformedItems = cartData.map((item) => ({
         id: item.art.art_id.toString(),
         title: item.art.name,
         artist: `${item.art.user.first_name} ${item.art.user.last_name}`,
-        price: parseFloat(item.art.price),
+        price: typeof item.art.price === 'string' 
+          ? parseFloat(item.art.price) 
+          : Number(item.art.price),
         image: item.art.image || '',
         sellerEmail: item.art.user.email || `user_${item.art.user.user_id}@example.com`,
+        sellerId: item.art.user.user_id.toString()
       }));
       
       setItems(transformedItems);
@@ -70,11 +75,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Add item to cart
-  const addToCart = async (item: CartItem) => {
+  const addToCart = async (item: CartItem): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
+      // Check if user is trying to purchase their own art
+      if (user && item.sellerId && user.user_id.toString() === item.sellerId) {
+        setError("You cannot purchase your own artwork");
+        setLoading(false);
+        return;
+      }
+      
       if (user) {
         // Add to backend if logged in
         await cartService.addToCart(item.id);
@@ -97,7 +109,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Remove from cart
-  const removeFromCart = async (id: string) => {
+  const removeFromCart = async (id: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
@@ -119,7 +131,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Clear cart
-  const clearCart = async () => {
+  const clearCart = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     
@@ -156,7 +168,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useCart = () => {
+export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
