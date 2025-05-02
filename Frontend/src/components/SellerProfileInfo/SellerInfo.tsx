@@ -7,14 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface SellerInfoProps {
   name: string;
-  rating: number;
-  reviewsCount: number;
 }
 
 const SellerInfo: React.FC<SellerInfoProps> = ({
   name,
-  rating,
-  reviewsCount,
 }) => {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
@@ -32,11 +28,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
   return (
     <SellerInfoContainer>
       <SellerName>{user ? `Welcome, ${user.username}` : name}</SellerName>
-      <Rating>
-        <span>⭐ {rating}</span>
-        <ReviewsCount>({reviewsCount} reviews)</ReviewsCount>
         {user && <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>}
-      </Rating>
     </SellerInfoContainer>
   );
 };
@@ -53,19 +45,6 @@ const SellerName = styled.h1`
   margin: 5px 0;
 `;
 
-const Rating = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-  font-size: 18px;
-  gap: 10px;
-`;
-
-const ReviewsCount = styled.span`
-  font-size: 14px;
-  color: #555;
-`;
 
 const LogoutButton = styled.button`
   background-color: #ff4d4f;

@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import RetrieveAPIView,ListAPIView
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.hashers import check_password
 from base.models import Location, ArtPiece, Users
 from .serializers import SignupSerializer  # Import the serializer
 
@@ -40,7 +41,7 @@ class LoginAPIView(APIView):
 
         try:
             user = Users.objects.get(username=username) # tries to find user object in database 
-            if password == user.password: # if user is found 
+            if check_password(password, user.password):
                 # create a session for the user by storing their user_id in Django's session framework — 
                 # this is exactly how session-based auth works. Django will automatically send a session 
                 # cookie back to the frontend (called sessionid) which will identify the user in future requests
