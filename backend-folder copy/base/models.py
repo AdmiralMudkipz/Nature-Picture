@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 
 # This is a Django model file that defines the database schema for an art piece application.
-# It includes models for users, art pieces, purchase orders, reviews, and other related entities.
+# It includes models for users, art pieces, purchase orders, and other related entities.
 # Each model corresponds to a table in the database, and the fields in each model correspond to the columns in those tables.
 
 class Location(models.Model):
@@ -201,15 +201,6 @@ class PurchaseOrderArtPiece(models.Model):
         db_table = 'purchase_order_art_piece'
 
 
-class Reviews(models.Model):
-    review_id = models.AutoField(primary_key=True)
-    rating = models.IntegerField(blank=True, null=True)
-    reviewer = models.ForeignKey('Users', models.DO_NOTHING)
-    reviewed = models.ForeignKey('Users', models.DO_NOTHING, related_name='reviews_reviewed_set')
-
-    class Meta:
-        managed = False
-        db_table = 'reviews'
 
 
 class Users(models.Model):
