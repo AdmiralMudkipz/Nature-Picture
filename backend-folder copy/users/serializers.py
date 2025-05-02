@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
 from base.models import Users, ArtPiece, Location
 
 
@@ -34,4 +35,5 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')  # remove this field before creating user 
-        return Users.objects.create(**validated_data)
+        validated_data['password'] = make_password(validated_data['password']) # has the password before saving it to the database
+        return Users.objects.create(**validated_data) # create a new user instance in the database with the validated data

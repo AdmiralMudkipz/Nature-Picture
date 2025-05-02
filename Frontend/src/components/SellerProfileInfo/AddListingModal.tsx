@@ -320,6 +320,27 @@ const ModalContent = styled.div`
   border-radius: 10px;
   width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 90vh; /* Limit height to 90% of viewport height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  
+  /* Custom scrollbar styling for better appearance */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 `;
 
 const CloseButton = styled.button`
