@@ -3,6 +3,11 @@ import axios from "axios";
 import styled from "styled-components";
 import ReactPortal from "../ReactPortal";
 import { useUser } from "../../context/UserContext";
+// Import our SQL sanitization utility
+import {
+  sanitizeSql,
+  createSqlSafeHandler,
+} from "../../utilities/sqlSanitization";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -25,7 +30,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   const [county, setCounty] = useState("");
   const [state, setState] = useState("NJ");
   const [stock, setStock] = useState<number | null>(null);
-  
+
   // Image handling
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -35,22 +40,25 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
+
       // Basic validation
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         setUploadStatus("Error: File size should not exceed 5MB");
         return;
       }
-      
+
       const fileType = file.type;
       if (!fileType.match(/^image\/(jpeg|png|gif|webp)$/)) {
-        setUploadStatus("Error: Only JPG, PNG, GIF, and WEBP formats are supported");
+        setUploadStatus(
+          "Error: Only JPG, PNG, GIF, and WEBP formats are supported"
+        );
         return;
       }
-      
+
       setSelectedImage(file);
       setUploadStatus("");
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -60,29 +68,51 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
     }
   };
 
+  // Create handlers that apply SQL sanitization
+  const handleTitleChange = createSqlSafeHandler(setTitle);
+  const handleDescriptionChange = createSqlSafeHandler(setDescription);
+  const handleCountyChange = createSqlSafeHandler(setCounty);
+
+  // Handle price change (numeric fields don't need SQL sanitization)
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrice(e.target.value === "" ? null : parseFloat(e.target.value));
+  };
+
+  // Handle stock change (numeric fields don't need SQL sanitization)
+  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStock(e.target.value === "" ? null : parseInt(e.target.value, 10));
+  };
+
+  // Handle dropdown changes (don't need SQL sanitization as they're from fixed options)
+  const handleTypeOfArtChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTypeOfArt(e.target.value);
+  };
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setState(e.target.value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploadStatus("Submitting...");
 
-      // Check if user is null before proceeding
-  if (!user) {
-    setUploadStatus("Error: You must be logged in to add a listing.");
-    return;
-  }
-
+    // Check if user is null before proceeding
+    if (!user) {
+      setUploadStatus("Error: You must be logged in to add a listing.");
+      return;
+    }
 
     try {
-      // Create FormData object to send both text fields and file
       const formData = new FormData();
-      formData.append("name", title);
-      formData.append("description", description);
+      formData.append("name", title); // Already sanitized by handleTitleChange
+      formData.append("description", description); // Already sanitized by handleDescriptionChange
       formData.append("price", price ? price.toString() : "");
       formData.append("type_of_art", typeOfArt);
-      formData.append("county", county);
+      formData.append("county", county); // Already sanitized by handleCountyChange
       formData.append("state", state);
       formData.append("stock_amount", stock ? stock.toString() : "");
       formData.append("user_id", user.user_id.toString());
-      
+
       // Append image if selected
       if (selectedImage) {
         formData.append("image", selectedImage);
@@ -92,17 +122,17 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
       const response = await axios.post(
         "http://localhost:8000/base/artpieces/create/",
         formData,
-        { 
+        {
           withCredentials: true,
           headers: {
-            "Content-Type": "multipart/form-data" 
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-      
+
       console.log("Listing created successfully:", response.data);
       setUploadStatus("Success! Your listing has been created.");
-      
+
       // Reset form
       setTimeout(() => {
         setTitle("");
@@ -111,12 +141,12 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
         setTypeOfArt("");
         setStock(null);
         setCounty("");
+        setState("NJ");
         setSelectedImage(null);
         setImagePreview(null);
         setUploadStatus("");
         handleClose();
       }, 1500);
-      
     } catch (error) {
       console.error("Error creating listing:", error);
       setUploadStatus("Error: Failed to create listing. Please try again.");
@@ -138,14 +168,14 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
             <Input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange} //
               required
             />
 
             <Label>Description:</Label>
             <Textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               required
             />
 
@@ -153,11 +183,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
             <Input
               type="number"
               value={price ?? ""}
-              onChange={(e) =>
-                setPrice(
-                  e.target.value === "" ? null : parseFloat(e.target.value)
-                )
-              }
+              onChange={handlePriceChange}
               step="0.01"
               min="0"
               required
@@ -167,22 +193,14 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
             <Input
               type="number"
               value={stock ?? ""}
-              onChange={(e) =>
-                setStock(
-                  e.target.value === "" ? null : parseInt(e.target.value, 10)
-                )
-              }
+              onChange={handleStockChange}
               step="1"
               min="0"
               required
             />
 
             <Label>Type of Art</Label>
-            <Select
-              value={typeOfArt}
-              onChange={(e) => setTypeOfArt(e.target.value)}
-              required
-            >
+            <Select value={typeOfArt} onChange={handleTypeOfArtChange} required>
               <option value="" disabled>
                 Select Type of Art
               </option>
@@ -198,18 +216,14 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
             <Input
               type="text"
               value={county}
-              onChange={(e) => setCounty(e.target.value)}
+              onChange={handleCountyChange}
               required
             />
-            
+
             <Label>State</Label>
-            <Select
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              required
-            >
+            <Select value={state} onChange={handleStateChange} required>
               <option value="" disabled>
-              Select State
+                Select State
               </option>
               <option value="AL">Alabama</option>
               <option value="AK">Alaska</option>
@@ -265,31 +279,36 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
 
             <Label>Upload Image:</Label>
             <FileInputContainer>
-              <FileInput 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageChange} 
+              <FileInput
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
               />
               <FileInputLabel>Choose File</FileInputLabel>
             </FileInputContainer>
-            
+
             {selectedImage && (
-              <SelectedFileName>Selected: {selectedImage.name}</SelectedFileName>
+              <SelectedFileName>
+                Selected: {selectedImage.name}
+              </SelectedFileName>
             )}
-            
+
             {imagePreview && (
               <ImagePreviewContainer>
                 <img src={imagePreview} alt="Preview" />
               </ImagePreviewContainer>
             )}
-            
+
             {uploadStatus && (
-              <StatusMessage isError={uploadStatus.startsWith('Error')}>
+              <StatusMessage isError={uploadStatus.startsWith("Error")}>
                 {uploadStatus}
               </StatusMessage>
             )}
 
-            <SubmitButton type="submit" disabled={uploadStatus === "Submitting..."}>
+            <SubmitButton
+              type="submit"
+              disabled={uploadStatus === "Submitting..."}
+            >
               {uploadStatus === "Submitting..." ? "Submitting..." : "Submit"}
             </SubmitButton>
           </StyledForm>
@@ -299,7 +318,7 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
   );
 };
 
-// Add the missing styled components from your original file
+// All styled components remain the same as your original code
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -320,24 +339,23 @@ const ModalContent = styled.div`
   border-radius: 10px;
   width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 90vh; /* Limit height to 90% of viewport height */
-  overflow-y: auto; /* Enable vertical scrolling */
-  
-  /* Custom scrollbar styling for better appearance */
+  max-height: 90vh;
+  overflow-y: auto;
+
   &::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
   }
-  
+
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
@@ -390,14 +408,13 @@ const SubmitButton = styled.button`
   color: black;
   border: 1px solid #000;
   cursor: pointer;
-  
+
   &:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
   }
 `;
 
-// New styled components for image upload
 const FileInputContainer = styled.div`
   position: relative;
   margin-top: 5px;
@@ -421,7 +438,7 @@ const FileInputLabel = styled.span`
   color: white;
   border-radius: 4px;
   cursor: pointer;
-  
+
   &:hover {
     background: #555;
   }
@@ -437,7 +454,7 @@ const ImagePreviewContainer = styled.div`
   margin-top: 10px;
   max-width: 100%;
   text-align: center;
-  
+
   img {
     max-width: 100%;
     max-height: 200px;
@@ -450,8 +467,9 @@ const StatusMessage = styled.div<{ isError: boolean }>`
   margin-top: 10px;
   padding: 8px;
   border-radius: 4px;
-  background-color: ${props => props.isError ? 'rgba(255, 77, 79, 0.1)' : 'rgba(76, 175, 80, 0.1)'};
-  color: ${props => props.isError ? '#ff4d4f' : '#4CAF50'};
+  background-color: ${(props) =>
+    props.isError ? "rgba(255, 77, 79, 0.1)" : "rgba(76, 175, 80, 0.1)"};
+  color: ${(props) => (props.isError ? "#ff4d4f" : "#4CAF50")};
 `;
 
 export default AddListingModal;

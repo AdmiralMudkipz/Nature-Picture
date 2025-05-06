@@ -1,6 +1,7 @@
 import React, { useState, CSSProperties, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { sanitizeSql, createSqlSafeHandler } from '../utilities/sqlSanitization';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -11,49 +12,36 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Function to sanitize input to prevent SQL injection
-  const sanitizeInput = (input: string): string => {
-    // Basic sanitization: Remove SQL keywords and special characters
-    return input
-      .replace(/[;'"\\/]/g, '') // Remove common SQL injection characters
-      .replace(/\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|UNION|CREATE|WHERE|FROM|JOIN)\b/gi, '');
-  };
-
+  
+  // handler that calls createSqlSafeHandler to sanitize the input and set the state
+  const handleQueryChange = createSqlSafeHandler(setQuery);
+  
   // Handle search submission
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
+
     
-    const sanitizedQuery = sanitizeInput(query.trim());
-    
-    // Call onSearch with the sanitized query
-    onSearch(sanitizedQuery);
+    // Call onSearch with the sanitized query (which is already in state)
+    onSearch(query);
     
     // If query is empty, navigate to default path
-    if (!sanitizedQuery) {
+    if (!query) {
       navigate(defaultPath, { replace: true });
     }
   };
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setQuery(newValue);
-  };
-
+  
   // Effect to watch for empty query and trigger reload
   useEffect(() => {
     // If user clears the input, reset the search
     if (query === '') {
       onSearch(''); // Call onSearch with empty string to reload all products
-      
       // Only navigate if we're not already on the default path
       if (location.pathname !== defaultPath) {
         navigate(defaultPath, { replace: true });
       }
     }
   }, [query, navigate, defaultPath, location, onSearch]);
-
+  
   return (
     <div style={styles.container}>
       <form onSubmit={handleSearch} style={styles.form}>
@@ -63,7 +51,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, defaultPath = '/' }) =>
             type="text"
             style={styles.searchInput}
             value={query}
-            onChange={handleInputChange}
+            onChange={handleQueryChange}
             placeholder="Search by title..."
           />
         </div>
