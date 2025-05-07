@@ -11,6 +11,7 @@ interface SortDropdownProps {
   onSortChange: (value: string) => void;
   defaultValue: string;
   className?: string;
+  value?: string; 
 }
 
 export const SortDropdown: React.FC<SortDropdownProps> = ({
@@ -18,10 +19,26 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
   onSortChange,
   defaultValue,
   className = "",
+  value,
 }) => {
+
+  const initialValue = value !== undefined ? value : defaultValue || options[0].value;
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState(defaultValue || options[0].value);
+  const [selected, setSelected] = useState(initialValue);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setSelected(value);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    // Make sure selected has a value on initial render
+    if (!selected && options.length > 0) {
+      setSelected(options[0].value);
+    }
+  }, []);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -37,17 +54,18 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedLabel = options.find((opt) => opt.value === selected)?.label;
+  // Find the selected option's label - default to the first option if nothing is selected
+  const selectedOption = options.find((opt) => opt.value === selected) || options[0];
+  const selectedLabel = selectedOption.label;
 
   return (
     <DropdownWrapper className={className} ref={ref}>
       <DropdownButton onClick={toggleDropdown}>
-        {selectedLabel}
+        <ButtonText>{selectedLabel}</ButtonText>
         <Arrow>{isOpen ? "▲" : "▼"}</Arrow>
       </DropdownButton>
       {isOpen && (
@@ -67,12 +85,11 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
   );
 };
 
-export default SortDropdown;
-
 // Styled Components
 const DropdownWrapper = styled.div`
   position: relative;
-  display: inline-block;
+  display: block;
+  width: 100%;
 `;
 
 const DropdownButton = styled.button`
@@ -80,13 +97,24 @@ const DropdownButton = styled.button`
   border: 1px solid #ccc;
   padding: 8px 12px;
   width: 100%;
+  min-width: 150px;
   text-align: left;
   cursor: pointer;
   border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ButtonText = styled.span`
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Arrow = styled.span`
-  float: right;
+  margin-left: 8px;
 `;
 
 const DropdownMenu = styled.ul`
@@ -101,6 +129,9 @@ const DropdownMenu = styled.ul`
   border-radius: 0 0 4px 4px;
   max-height: 200px;
   overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
@@ -109,9 +140,10 @@ const DropdownItem = styled.li<{ isSelected: boolean }>`
   cursor: pointer;
   background-color: ${({ isSelected }) =>
     isSelected ? "#f0f0f0" : "transparent"};
-  color: black; /* Set the font color to black */
-
+  color: black;
   &:hover {
     background-color: #f0f0f0;
   }
 `;
+
+export default SortDropdown;

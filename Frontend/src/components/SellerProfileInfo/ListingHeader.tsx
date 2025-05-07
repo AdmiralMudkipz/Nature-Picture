@@ -1,10 +1,10 @@
 import { useState } from "react";
 import styled from "styled-components";
-import AddListingModal from "./AddListingModal"; // Assuming this is your modal component
-import { SortDropdown } from "./SortDropdown"; // Assuming this is your sort dropdown component
+import AddListingModal from "./AddListingModal";
+import { SortDropdown } from "./SortDropdown";
 
 const sortOptions = [
-  { label: "Newest", value: "newest" }, // Need to delete this
+  { label: "Select Sort", value: "" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
   { label: "Name: A to Z", value: "name-asc" },
@@ -16,27 +16,26 @@ interface ListingHeaderProps {
   onSortChange?: (value: string) => void;
   showSort?: boolean;
   currentSort?: string;
-  showAddButton?: boolean; // ✅ Add this
+  showAddButton?: boolean;
 }
-
-
 
 const ListingHeader: React.FC<ListingHeaderProps> = ({
   title,
   onSortChange = () => {},
   showSort = true,
   currentSort = "",
-  showAddButton = false, 
+  showAddButton = false,
 }) => {
   const [isAddOpen, setIsAddOpen] = useState(false); // State for modal visibility
 
   const handleAddListingClick = () => {
-    setIsAddOpen(true); // Open modal when "Add Listing" button is clicked
+    setIsAddOpen(true);
   };
 
   const handleModalClose = () => {
-    setIsAddOpen(false); // Close modal when closing
+    setIsAddOpen(false);
   };
+  
 
   return (
     <ListingHeaderWrapper>
@@ -50,6 +49,7 @@ const ListingHeader: React.FC<ListingHeaderProps> = ({
             <SortDropdown
               options={sortOptions}
               onSortChange={onSortChange}
+              value={currentSort}
               defaultValue={currentSort}
               className="w-48"
             />
@@ -64,7 +64,6 @@ const ListingHeader: React.FC<ListingHeaderProps> = ({
       {showAddButton && (
         <AddListingModal isOpen={isAddOpen} handleClose={handleModalClose}>
           <h2>Add New Art Listing</h2>
-          {/* Your modal form or content here */}
         </AddListingModal>
       )}
     </ListingHeaderWrapper>
@@ -112,6 +111,5 @@ const Button = styled.button`
     background-color: #3b6e6b;
   }
 `;
-
 
 export default ListingHeader;
