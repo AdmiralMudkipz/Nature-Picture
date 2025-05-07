@@ -204,12 +204,12 @@ const AddListingModal: React.FC<AddListingModalProps> = ({
               <option value="" disabled>
                 Select Type of Art
               </option>
-              <option value="photography">Photography</option>
-              <option value="print">Print</option>
-              <option value="sculpture">Sculpture</option>
-              <option value="painting">Painting</option>
-              <option value="ceramics">Ceramics</option>
-              <option value="digital">Other</option>
+              <option value="Photography">Photography</option>
+              <option value="Print">Print</option>
+              <option value="Sculpture">Sculpture</option>
+              <option value="Painting">Painting</option>
+              <option value="Ceramics">Ceramics</option>
+              <option value="Other">Other</option>
             </Select>
 
             <Label>County</Label>
