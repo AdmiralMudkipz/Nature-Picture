@@ -16,7 +16,7 @@ export const sanitizeSql = (input: string): string => {
       .replace(/['";\\]/g, "")
       // Remove common SQL keywords that might be used in injections
       .replace(
-        /\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|UNION|CREATE|TABLE|FROM|WHERE|JOIN|OR|AND|NOT|LIKE|BETWEEN|IN|IS|NULL|TRUE|FALSE|EXEC|EXECUTE|PROCEDURE|DECLARE|--)\b/gi,
+        /\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|UNION|CREATE|TABLE|FROM|WHERE|JOIN)\b(?=\s|$|;)/gi,
         ""
       )
   );
