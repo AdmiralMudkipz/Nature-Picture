@@ -113,8 +113,8 @@ class ArtPieceCreateAPIView(APIView):
             # Handle Location
             try:
                 location, _ = Location.objects.get_or_create(
-                    county=county,
-                    state=state,
+                    county__iexact=county, # case insensitive 
+                    state__iexact=state, # case insensitive
                     defaults={'county': county, 'state': state}
                 )
             except Exception as e:
