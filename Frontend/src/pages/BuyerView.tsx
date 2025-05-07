@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import ListingWidget from "../components/modalstuff/ListingWidget";
-import ListingModal from "../components/modalstuff/Modal"; 
+import ListingModal from "../components/modalstuff/Modal";
 import { useUser } from "../context/UserContext";
 import { useCart } from "../context/CartContext";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader";
@@ -21,7 +21,7 @@ const BuyerView: React.FC = () => {
   const { user } = useUser();
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
-  const [sortMethod, setSortMethod] = useState<string>("newest");
+  const [sortMethod, setSortMethod] = useState<string>("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
@@ -32,33 +32,27 @@ const BuyerView: React.FC = () => {
       if (!user?.user_id) return;
       try {
         const response = await axios.get(
-          "http://localhost:8000/base/purchase_order/purchase-history/", 
+          "http://localhost:8000/base/purchase_order/purchase-history/",
           { withCredentials: true }
         );
-        
+
         console.log("Raw API response:", response.data);
-        
+
         const formatted: Product[] = [];
         response.data.forEach((order: any) => {
           order.art_pieces.forEach((item: any) => {
             const art = item.art;
-            
-            // Try to extract price from the API response
+
+            // Simplify price extraction to just one consistent approach
             let price = 0;
-            
-            // Check multiple possible locations for price
-            if (typeof item.price === 'number' && !isNaN(item.price)) {
-              price = item.price;
-            } else if (typeof item.price === 'string' && !isNaN(parseFloat(item.price))) {
+            if (item.price && !isNaN(parseFloat(item.price))) {
               price = parseFloat(item.price);
-            } else if (typeof art.price === 'number' && !isNaN(art.price)) {
-              price = art.price;
-            } else if (typeof art.price === 'string' && !isNaN(parseFloat(art.price))) {
+            } else if (art.price && !isNaN(parseFloat(art.price))) {
               price = parseFloat(art.price);
             }
-            
+
             console.log(`Art piece ${art.name} price:`, price);
-            
+
             formatted.push({
               id: art.art_id,
               name: art.name,
@@ -83,9 +77,11 @@ const BuyerView: React.FC = () => {
     fetchPurchases();
   }, [user]);
 
+  // Only sort when sortMethod changes
   useEffect(() => {
-    if (products.length > 0) {
-      const sorted = [...products].sort((a, b) => {
+    if (products.length > 0 && sortMethod) {
+      const productsCopy = [...products];
+      const sorted = productsCopy.sort((a, b) => {
         switch (sortMethod) {
           case "price-asc":
             return a.price - b.price;
@@ -95,7 +91,6 @@ const BuyerView: React.FC = () => {
             return a.name.localeCompare(b.name);
           case "name-desc":
             return b.name.localeCompare(a.name);
-          case "newest":
           default:
             return new Date(b.date).getTime() - new Date(a.date).getTime();
         }
@@ -124,7 +119,7 @@ const BuyerView: React.FC = () => {
         artist: user?.username || "Unknown Artist",
         price: selectedProduct.price,
         image: selectedProduct.image,
-        sellerEmail: user?.email || "Unknown Email"
+        sellerEmail: user?.email || "Unknown Email",
       });
       handleCloseModal();
     }
@@ -177,15 +172,18 @@ const BuyerView: React.FC = () => {
 
         {isModalOpen && selectedProduct && (
           <ListingModal
+            isOpen={isModalOpen} 
+            onClose={handleCloseModal}
             images={[selectedProduct.image]}
             title={selectedProduct.name}
             artist={user?.username || "Unknown Artist"}
             price={selectedProduct.price}
+            sellerEmail={user?.email || "Unknown Email"} 
+            id={selectedProduct.id.toString()} 
             typeOfArt={"Art"}
             bio={""}
             stock={selectedProduct.stock_amount || 0}
-            onClose={handleCloseModal}
-            onAddToCart={handleAddToCart}
+            location={""} 
             showAddToCart={false}
           />
         )}
