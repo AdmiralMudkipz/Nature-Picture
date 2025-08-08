@@ -35,7 +35,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ name }) => {
 const SellerInfoContainer = styled.div`
   text-align: center;
   width: 100%;
-  padding-top: 80px; /* Adjust this value based on your navbar height */
+  padding-top: 80px; 
 `;
 
 const SellerName = styled.h1`

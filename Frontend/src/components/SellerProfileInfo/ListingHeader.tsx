@@ -35,7 +35,6 @@ const ListingHeader: React.FC<ListingHeaderProps> = ({
   const handleModalClose = () => {
     setIsAddOpen(false);
   };
-  
 
   return (
     <ListingHeaderWrapper>

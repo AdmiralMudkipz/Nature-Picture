@@ -14,7 +14,7 @@ interface ModalProps {
   id: string;
   stock: number;
   location: string;
-  showAddToCart?: boolean; // added this prop to control the button visibility
+  showAddToCart?: boolean; 
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -101,7 +101,7 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-// Styled Components for the Modal
+
 const ModalBackdrop = styled.div`
   position: fixed;
   top: 0;

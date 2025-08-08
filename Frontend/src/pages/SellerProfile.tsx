@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SellerInfo from "../components/SellerProfileInfo/SellerInfo";
 import ListingHeader from "../components/SellerProfileInfo/ListingHeader";
-import ListingWidget from "../components/modalstuff/ListingWidget";
+import ListingWidget from "../components/modalstuff/ListingWidget"; 
 import ListingModal from "../components/modalstuff/Modal"; // assuming this is your modal
 import { useUser } from "../context/UserContext";
 import axios from "axios";

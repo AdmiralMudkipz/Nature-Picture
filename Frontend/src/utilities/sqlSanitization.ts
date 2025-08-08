@@ -6,7 +6,7 @@
 export const sanitizeSql = (input: string): string => {
   if (!input) return "";
 
-  // convert input to string if not already
+  // convert input to string if not already, this is probably unneccesary bc typescript
   const str = String(input);
 
   // Remove common SQL injection characters and keywords
